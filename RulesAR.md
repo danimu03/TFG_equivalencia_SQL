@@ -1,4 +1,4 @@
-1- Selecciones conjuntivas
+# 1- Selecciones conjuntivas
       σθ1∧θ2(E) = σθ1(σθ2(E))
       <----------------------
         Derecha a izquierda
@@ -16,8 +16,10 @@
         "cond" : [edad = 18, sexo = hombre],
         "rel" : Persona
       }
-     
-2-Selecciones conmutativas
+-----------
+
+# 2-Selecciones conmutativas
+
       σθ1(σθ2(E)) = σθ2(σθ1(E))
       Ordenadas alfabéticamente
       
@@ -37,7 +39,9 @@
                 }
       }
       
-3-Cascada de proyecciones
+---------
+
+# 3-Cascada de proyecciones
   
   ΠL1(ΠL2(. . .(ΠLn(E)). . .)) = ΠL1(E)
   
@@ -57,7 +61,9 @@
         "rel" : Persona
     }
     
-4-  El select de un producto cartesiano, es igual que un natural join
+-------
+
+# 4-  El select de un producto cartesiano, es igual que un natural join
    a.
   σθ(E1 × E2) = E1 ⊲⊳θ E2
   -----------------------> Lo dejamos como natural join
@@ -94,8 +100,9 @@
         "rrel" : tabla2
     }
     
-    
-5-Los natural join son conmutativos
+--------
+
+# 5-Los natural join son conmutativos
   E1 ⊲⊳θ E2 = E2 ⊲⊳θ E1
   Ordenados alfabéticamente
   
@@ -110,8 +117,10 @@
         "lrel" : Jugadores,
         "rrel" : Personas
     }
-    
-6-Los natural join son asociativos
+
+--------
+
+# 6-Los natural join son asociativos
     (E1 ⊲⊳ E2) ⊲⊳ E3 = E1 ⊲⊳ (E2 ⊲⊳ E3)
     El objeto "lrel" del JSON es simple, y en la derecha en la que sea el objeto. De esta manera queda más ordenado
     
@@ -135,8 +144,6 @@
                   }
     }
     
-    
-    
     (E1 ⊲⊳θ1 E2) ⊲⊳θ2∧θ3 E3 = E1 ⊲⊳θ1∧θ3(E2 ⊲⊳θ2 E3)
     
     {  "type" : "join",
@@ -159,8 +166,9 @@
                   }
     }
     
-    
-7-Selects de natural joins
+--------
+
+# 7-Selects de natural joins
     
       TABLAS:
       PERSONAS ------NOMBRE----EDAD----SEXO
@@ -214,7 +222,9 @@
                   }
       }
 
-8-La proyección se distribuye en theta join
+----------
+
+# 8-La proyección se distribuye en theta join
 
   TABLAS:
   PERSONAS ------NOMBRE----EDAD----SEXO
