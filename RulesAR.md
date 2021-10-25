@@ -43,7 +43,7 @@
 
 # 3-Cascada de proyecciones
   
-  ΠL1(ΠL2(. . .(ΠLn(E)). . .)) = ΠL1(E)
+      ΠL1(ΠL2(. . .(ΠLn(E)). . .)) = ΠL1(E)
   
     {   "type" : "pi",
         "proj" : nombre,
@@ -64,9 +64,9 @@
 -------
 
 # 4-  El select de un producto cartesiano, es igual que un natural join
-   a.
-  σθ(E1 × E2) = E1 ⊲⊳θ E2
-  -----------------------> Lo dejamos como natural join
+       a.
+       σθ(E1 × E2) = E1 ⊲⊳θ E2
+      -----------------------> Lo dejamos como natural join
 
     {   "type" : "sigma",
         "cond" : nombre = Juan,
@@ -82,8 +82,8 @@
         "rrel" : tabla2
     }
     
-    b. La selección de un natural join, es este natural join con dos condiciones
-   σθ1(E1 ⊲⊳σθ2E2) = E1 ⊲⊳θ1∧θ2 E2 
+       b. La selección de un natural join, es este natural join con dos condiciones
+      σθ1(E1 ⊲⊳σθ2E2) = E1 ⊲⊳θ1∧θ2 E2 
    
     {   "type" : "sigma",
         "cond" : edad=18,
@@ -103,8 +103,8 @@
 --------
 
 # 5-Los natural join son conmutativos
-  E1 ⊲⊳θ E2 = E2 ⊲⊳θ E1
-  Ordenados alfabéticamente
+      E1 ⊲⊳θ E2 = E2 ⊲⊳θ E1
+      Ordenados alfabéticamente
   
     {  "type" : "join",
         "cond" : nombre = Juan,
@@ -226,13 +226,13 @@
 
 # 8-La proyección se distribuye en theta join
 
-  TABLAS:
-  PERSONAS ------NOMBRE----EDAD----SEXO
-  GANADORES -----NOMBRE----PREMIO----NACIONALIDAD
+      TABLAS:
+      PERSONAS ------NOMBRE----EDAD----SEXO
+      GANADORES -----NOMBRE----PREMIO----NACIONALIDAD
   
-  A.
-  ΠL1∪L2(E1 ⊲⊳θ E2) = (ΠL1(E1)) ⊲⊳θ (ΠL2(E2))
-  <---------------------------------------- Dejamos la proyección al principio
+      A.
+      ΠL1∪L2(E1 ⊲⊳θ E2) = (ΠL1(E1)) ⊲⊳θ (ΠL2(E2))
+      <---------------------------------------- Dejamos la proyección al principio
   
     {   "type" : "join",
         "cond" : --------------,
