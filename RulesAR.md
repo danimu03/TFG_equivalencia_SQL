@@ -160,7 +160,7 @@
     }
     
     
-    7-Selects de natural joins
+7-Selects de natural joins
     
       TABLAS:
       PERSONAS ------NOMBRE----EDAD----SEXO
