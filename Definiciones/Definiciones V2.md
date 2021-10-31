@@ -77,14 +77,14 @@
 
 simple condition -> dni = "0230098R"
 
-    {	"type" : "eq",
-        "values" : ["dni", "0230098R"]
-    }
+    	{	"type" : "eq",
+       	 	"values" : ["dni", "0230098R"]
+    	}
 
 double condition -> id = 00012 AND dni = "0230098R"
 	
-    {   "type" : "and",
-	"values" : [ 
+	{   "type" : "and",
+	    "values" : [ 
 			{	"type" : "eq",
        				"values" : ["id", 00012]
 			},
@@ -92,7 +92,7 @@ double condition -> id = 00012 AND dni = "0230098R"
         			"values" : ["dni", "0230098R"]
 			}
 		   ]
-    }
+    	}
 
 
 various conditions -> id = 00012 AND ( puesto = "técnico" OR puesto = "ayudante")
