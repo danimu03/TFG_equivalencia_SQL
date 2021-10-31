@@ -31,24 +31,28 @@ PI[Nombre] (SIGMA[Pais="España"] (Persona))
 
 > SELECT Nombre, Ap1, Ap2
 > FROM Empl
->
-> WHERE Pais = "España"
+> JOIN Proyecto ON Dni = DniDir
 
 
-PI[Nombre] (SIGMA[Pais="España"] (Persona))
+
+PI[Nombre, Ap1, Ap2] ((Empl) JOIN [Dni = DniDir] (Proyeccto))
 
 
 	{	"type"	:	"pi",
-		"proj"	:	["Nombre"],
-		"rel"	:	{	"type"	:	"sigma",
+		"proj"	:	["Nombre", "Ap1", "Ap2"],
+		"rel"	:	{	"type"	:	"join",
 					"cond"	:	{	
 								"type"		: 	"eq",	
-								"values"	:	["Pais", "España"]	
+								"values"	:	["Dni", "DniDir"]	
 							}
-					"rel"	:	{	
+					"lrel"	:	{	
 								"type"	:	"rel",
-								"table"	:	"Persona"
-							}	
+								"table"	:	"Empl"
+							}
+					"rrel"	:	{	
+								"type"	:	"rel",
+								"table"	:	"Proyecto"
+							}
 				}
 	}
  
