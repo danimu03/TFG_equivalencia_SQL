@@ -77,8 +77,8 @@
 
 simple condition -> dni = "0230098R"
 
-    	{	"type" : "eq",
-         	"values" : ["dni", "0230098R"]
+    	{   "type" : "eq",
+            "values" : ["dni", "0230098R"]
 	}
 
 double condition -> id = 00012 AND dni = "0230098R"
