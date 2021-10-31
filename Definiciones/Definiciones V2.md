@@ -56,7 +56,6 @@
         "rrel" : {|relation|} / {|other operation|}
     }
     
-_*Falta definir el formato de las condiciones_
 
 
 ----------
@@ -65,7 +64,7 @@ _*Falta definir el formato de las condiciones_
 # Relation
 
     {   "type" : "rel",
-		"table" : "name"
+	"table" : "name"
     }
 
 
@@ -80,7 +79,7 @@ simple condition -> dni = "0230098R"
 
     {	"type" : "eq",
         "values" : ["dni", "0230098R"]
-	}
+    }
 
 double condition -> id = 00012 AND dni = "0230098R"
 	
