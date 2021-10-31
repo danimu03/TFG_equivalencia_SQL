@@ -2,6 +2,7 @@
 
 ----------
 <p>* Los elementos entre barras tienen sus propias definiciones</p>
+
 ----------
 
 
@@ -55,7 +56,6 @@
         "rrel" : {|relation|} / {|other operation|}
     }
     
-_*Falta definir el formato de las condiciones_
 
 
 ----------
@@ -63,9 +63,9 @@ _*Falta definir el formato de las condiciones_
 
 # Relation
 
-    {   "type" : "rel",
-		"table" : "name"
-    }
+	{   "type" : "rel",
+	    "table" : "name"
+	}
 
 
 ----------
@@ -77,42 +77,42 @@ _*Falta definir el formato de las condiciones_
 
 simple condition -> dni = "0230098R"
 
-    {	"type" : "eq",
-        "values" : ["dni", "0230098R"]
+	{   "type" : "eq",
+	    "values" : ["dni", "0230098R"]
 	}
 
 double condition -> id = 00012 AND dni = "0230098R"
 	
-    {   "type" : "and",
+	{	"type" : "and",
 		"values" : [ 
-						{	"type" : "eq",
-       						"values" : ["id", 00012]
-						},
-        		  		{	"type" : "eq",
-        					"values" : ["dni", "0230098R"]
-						}
-				   ]
-    }
+				{	"type" : "eq",
+       					"values" : ["id", 00012]
+				},
+        			{	"type" : "eq",
+        				"values" : ["dni", "0230098R"]
+				}
+			]
+    	}
 
 
 various conditions -> id = 00012 AND ( puesto = "técnico" OR puesto = "ayudante")
 
 	{   "type" : "and",
-		"values" : [ 
-						{	"type" : "eq",
-       						"values" : ["id", 00012]
-						},
-        		  		{	"type" : "or",
-        					"values" : [
-											{	"type" : "eq",
-       											"values" : ["puesto", "técnico"]
-											},
-					        		  		{	"type" : "eq",
-					        					"values" : ["puesto", "técnico"]
-											}
-									   ]
-						}
-				   ]
+	    "values" : [ 
+			       {	"type" : "eq",
+       					"values" : ["id", 00012]
+			       },
+        		       {	"type" : "or",
+        				"values" : [
+							{	"type" : "eq",
+								"values" : ["puesto", "técnico"]
+							},
+					        	{	"type" : "eq",
+					        		"values" : ["puesto", "técnico"]
+							}
+						   ]
+				}
+			]
     }
 
 ----------
