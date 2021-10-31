@@ -12,16 +12,18 @@
 PI[Nombre] (SIGMA[Pais="España"] (Persona))
 
 
-    {	"type"	:	"pi",
+	{	"type"	:	"pi",
 		"proj"	:	["Nombre"],
 		"rel"	:	{	"type"	:	"sigma",
-						"cond"	:	{	"type"	:	"eq",	
-										"values"	:	["Pais", "España"]	
-									}
-						"rel"	:	{	"type"	:	"rel",
-										"table"	:	"Persona"
-									}	
-					}
+					"cond"	:	{	
+								"type"		: 	"eq",	
+								"values"	:	["Pais", "España"]	
+							}
+					"rel"	:	{	
+								"type"	:	"rel",
+								"table"	:	"Persona"
+							}	
+				}
 	}
  
 
