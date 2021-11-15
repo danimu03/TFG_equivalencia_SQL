@@ -1,0 +1,53 @@
+RULE 1
+
+1. 
+{"type": "sigma",
+ "cond": {"type": "eq",
+  	  "values": ["edad", 18]},
+ "rel": {"type": "sigma",
+         "cond": {"type": "eq",
+         	  "values": ["sexo", "hombre"]},
+	 "rel": "Persona"
+         }
+ }
+
+--------------------->
+
+{'type': 'sigma', 
+'cond': {'type': 'and', 
+	 'values': [{'type': 'eq', 'values': ['edad', 18]}, 
+	            {'type': 'eq', 'values': ['hombre', 'sexo']}
+	           ]
+        }, 
+'rel': 'Persona'}
+
+
+
+
+
+2. 3 Sigmas
+{"type": "sigma",
+ "cond": {"type": "eq",
+          "values": ["edad", 18]},
+ "rel": {"type": "sigma",
+         "cond": {"type": "eq",
+                  "values": ["sexo", "hombre"]},
+         "rel": {"type":"sigma",
+                 "cond": {'type':'eq',
+                          'values':['nombre', 'Juan']},
+                 'rel':'Personas'
+                 }
+         }
+}
+
+-------------------------------------->
+
+
+{'type': 'sigma', 
+'cond': {'type': 'and', 
+	 'values': [{'type': 'eq', 'values': ['edad', 18]},
+                    {'type': 'eq', 'values': ['sexo', 'hombre']}, 
+                    {'type': 'eq', 'values': ['Juan', 'nombre']}
+                   ]
+        }, 
+'rel': 'Personas'}
