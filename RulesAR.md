@@ -7,13 +7,13 @@
       { "type" : "sigma",
         "cond" : {   "type" : "eq",
                       "values" : ["edad", 18]
-                  }
+                  },
         "rel" : {"type" : "sigma",
                  "cond" : {   "type" : "eq",
                       "values" : ["sexo", "hombre"]
                   }
-                 "rel" : Persona
-                }
+                 "rel" : "Persona"
+                },
       }
         ----------------->
       { "type" : "sigma",
