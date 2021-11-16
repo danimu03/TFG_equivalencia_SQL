@@ -48,7 +48,7 @@
 
 ----------
 
-# Natural join 
+# Join 
 
     {   "type" : "join",
         "cond" : {|conditions|},
