@@ -109,10 +109,10 @@ PI[p.nombre] (SIGMA[p.nombre = "Juan Carlos" AND c.id = "IS345"] (RHO[c] (curso)
 					"cond"	:	{	
 								"type"		: 	"and",	
 								"values"	:	[	{	"type"	:	"eq",
-													"values"	: [p.nombre = "Juan Carlos"]
+													"values"	: ["p.nombre", "Juan Carlos"]
 												},
 												{	"type"	:	"eq",
-													"values"	: [c.id = "IS345"]
+													"values"	: ["c.id", "IS345"]
 												}
 											]	
 							}
