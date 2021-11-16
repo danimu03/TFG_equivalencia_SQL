@@ -1,8 +1,6 @@
-from unittest import TestCase
 import unittest
 
-
-class TestSqlJson(TestCase):
+class TestSqlJson(unittest.TestCase):
 
     def test_one(self):
         #res = name_function("SELECT Nombre FROM Persona WHERE Pais = \"España\"")
