@@ -1,9 +1,11 @@
 import unittest
 
+#from SQL_To_JSON import 
+
 class TestSqlJson(unittest.TestCase):
 
     def test_one(self):
-        #res = name_function("SELECT Nombre FROM Persona WHERE Pais = \"España\"")
+        #res = parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\"")
         res = {"type" : "example"}
         expected = {"type" : "pi", 
                     "proj" : ["Nombre"],
@@ -17,7 +19,7 @@ class TestSqlJson(unittest.TestCase):
         self.assertTrue(res == expected)
     
     def test_two(self):
-        #res = name_function("SELECT Nombre, Ap1, Ap2 FROM Empl JOIN Proyecto ON Dni = DniDir")
+        #res = parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl JOIN Proyecto ON Dni = DniDir")
         res = {"type" : "example"}
         expected = {"type" : "pi",
 	                "proj" : ["Nombre", "Ap1", "Ap2"],
@@ -33,7 +35,7 @@ class TestSqlJson(unittest.TestCase):
         self.assertTrue(res == expected)
 
     def test_three(self):
-        #res = name_function("SELECT Nombre, Ap1, Ap2 FROM Empl, Dedicacion WHERE Dni=DniEmpl")
+        #res = parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl, Dedicacion WHERE Dni=DniEmpl")
         res = {"type" : "example"}
         expected = {"type" : "pi",
 	                "proj" : ["Nombre", "Ap1", "Ap2"],
@@ -51,7 +53,7 @@ class TestSqlJson(unittest.TestCase):
         self.assertTrue(res == expected)
 
     def test_four(self):
-        #res = name_function("SELECT p.nombre FROM curso AS c, profesor AS p WHERE p.nombre = \"Juan Carlos\" AND c.id = \"IS345\"")
+        #res = parse_Sql_To_Json("SELECT p.nombre FROM curso AS c, profesor AS p WHERE p.nombre = \"Juan Carlos\" AND c.id = \"IS345\"")
         res = {"type" : "example"}
         expected = {"type" : "pi",
                     "proj" : ["Nombre", "Ap1", "Ap2"],
