@@ -27,8 +27,11 @@ def sql_select(previusJson):
     json = {}
     listAux = previusJson["select"]
     values = []
-    for i in listAux:
-        values.append( i["value"])
+    if isinstance(listAux, list):
+        for i in listAux:
+            values.append(i["value"])
+    else: 
+        values.append(listAux["value"])
     json["type"] = "pi"
     json["proj"] = values
     del previusJson["select"]
@@ -70,9 +73,5 @@ def sql_from(previusJson):
 print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\""))
 print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\""))
 
-
-
-
-
-
+print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
