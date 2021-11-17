@@ -74,4 +74,3 @@ print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\""))
 print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\""))
 
 print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
-
