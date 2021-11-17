@@ -10,10 +10,10 @@
                   },
         "rel" : {"type" : "sigma",
                  "cond" : {   "type" : "eq",
-                      "values" : ["sexo", "hombre"]
-                  }
+                              "values" : ["sexo", "hombre"]
+                           }
                  "rel" : "Persona"
-                },
+                 },
       }
         ----------------->
       { "type" : "sigma",
@@ -25,9 +25,9 @@
                                     {	"type" : "eq",
                                           "values" : ["sexo", "hombre"]
                                     }
-                              ]
-                        },
-        "rel" : Persona
+                          ]
+                  },
+        "rel" : "Persona"
       }
 -----------
 
@@ -42,9 +42,9 @@
                   },
         "rel" : {"type" : "sigma",
                  "cond" :{   "type" : "eq",
-                            "values" : ["edad", 18]
-                        },
-                 "rel" : Persona
+                             "values" : ["edad", 18]
+                          },
+                 "rel" : "Persona"
                 }
       }
       ------------------> (ordena alfabéticamente)
@@ -56,7 +56,7 @@
                  "cond" :{	"type" : "eq",
                               "values" : ["sexo", "hombre"]
                         },
-                 "rel" : Persona
+                 "rel" : "Persona"
                 }
       }
       
@@ -67,19 +67,19 @@
       ΠL1(ΠL2(. . .(ΠLn(E)). . .)) = ΠL1(E)
   
     {   "type" : "pi",
-        "proj" : nombre,
-        "rel" : {   "type" : "pi",
-                      "proj" : edad,
-                      "rel" : {   "type" : "pi",
-                                    "proj" : sexo,
-                                    "rel" : Persona
+        "proj" : ["nombre"],
+        "rel" : {     "type" : "pi",
+                      "proj" : ["edad"],
+                      "rel" : {     "type" : "pi",
+                                    "proj" : ["sexo"],
+                                    "rel" : "Persona"
                                }
                   }
     }
     ----------------------------------------------->
     {   "type" : "pi",
-        "proj" : nombre,
-        "rel" : Persona
+        "proj" : ["nombre"],
+        "rel" : "Persona"
     }
     
 -------
@@ -90,12 +90,12 @@
       -----------------------> Lo dejamos como natural join
 
     {   "type" : "sigma",
-        "cond" : {	"type" : "eq",
-                        "values" : ["nombre", "Juan"]
+        "cond" : {  "type" : "eq",
+                    "values" : ["nombre", "Juan"]
                   },
-        "rel" : {"type" : "pro",
-                    "lrel" : tabla1,
-                    "rrel" : tabla2
+        "rel" : {   "type" : "pro",
+                    "lrel" : "tabla1",
+                    "rrel" : "tabla2"
                 }
      }
      ------------------------------>
@@ -103,23 +103,23 @@
         "cond" : {	"type" : "eq",
                         "values" : ["nombre", "Juan"]
                   },
-        "lrel" : tabla1,
-        "rrel" : tabla2
+        "lrel" : "tabla1",
+        "rrel" : "tabla2"
     }
     
        b. La selección de un theta join, es este theta join con dos condiciones
       σθ1(E1 ⊲⊳σθ2E2) = E1 ⊲⊳θ1∧θ2 E2 
    
     {   "type" : "sigma",
-        "cond" : {   "type" : "eq",
+        "cond" : {    "type" : "eq",
                       "values" : ["edad", 18]
                   },
-        "rel" : {  "type" : "join",
+        "rel" : {   "type" : "join",
                     "cond" :{	"type" : "eq",
                               "values" : ["nombre", "Juan"]
                              },
-                    "lrel" : tabla1,
-                    "rrel" : tabla2
+                    "lrel" : "tabla1",
+                    "rrel" : "tabla2"
                  }
     }
     --------------------------------------->
@@ -134,8 +134,8 @@
                                     }
                               ]
                         },
-        "lrel" : tabla1,
-        "rrel" : tabla2
+        "lrel" : "tabla1",
+        "rrel" : "tabla2"
     }
     
 --------
@@ -148,16 +148,16 @@
         "cond" : {	"type" : "eq",
                         "values" : ["nombre", "Juan"]
                   },
-        "lrel" : Personas,
-        "rrel" : Jugadores
+        "lrel" : "Personas",
+        "rrel" : "Jugadores"
     }
     --------------------------->
     {  "type" : "join",
         "cond" : {	"type" : "eq",
                         "values" : ["nombre", "Juan"]
                   },
-        "lrel" : Jugadores,
-        "rrel" : Personas
+        "lrel" : "Jugadores",
+        "rrel" : "Personas"
     }
 
 --------
@@ -168,18 +168,18 @@
     Natural join
     
     {  "type" : "pro",,
-        "lrel" : {  "type" : "pro",
-                      "lrel" : Personas,
-                      "rrel" : Jugadores
+        "lrel" : {    "type" : "pro",
+                      "lrel" : "Personas",
+                      "rrel" : "Jugadores"
                   },
-        "rrel" : Ganadores
+        "rrel" : "Ganadores"
     }
     ---------------------------------------->
     {  "type" : "pro"
-        "lrel" : Personas,
-        "rrel" : {  "type" : "pro"
-                      "lrel" : Jugadores,
-                      "rrel" : Ganadores
+        "lrel" : "Personas",
+        "rrel" : {    "type" : "pro"
+                      "lrel" : "Jugadores",
+                      "rrel" : "Ganadores"
                   }
     }
     
@@ -193,7 +193,7 @@
         "cond" : {   "type" : "eq",
                       "values" : ["nombre", "Juan"]
                   }
-        "lrel" : {  "type" : "join",
+        "lrel" : {    "type" : "join",
                       "cond" : {	"type" : "and",
                                     "values" : [ 
                                                 {	"type" : "eq",
@@ -204,10 +204,10 @@
                                                 }
                                           ]
                                     },
-                      "lrel" : Personas,
-                      "rrel" : Jugadores
+                      "lrel" : "Personas",
+                      "rrel" : "Jugadores"
                   },
-        "rrel" : Ganadores
+        "rrel" : "Ganadores"
     }
     ---------------------------------------->
     {  "type" : "join",
@@ -221,13 +221,13 @@
                                     }
                               ]
                         },
-        "lrel" : Personas,
-        "rrel" : {  "type" : "join",
+        "lrel" : "Personas",
+        "rrel" : {    "type" : "join",
                       "cond" : {   "type" : "eq",
                                   "values" : ["edad", 18]
                               },
-                      "lrel" : Jugadores,
-                      "rrel" : Ganadores
+                      "lrel" : "Jugadores",
+                      "rrel" : "Ganadores"
                   }
     }
     
@@ -248,28 +248,28 @@
       <--------------------------------- Dejamos el select primero
       
        {  "type" : "join",
-          "cond" : {   "type" : "eq",
+          "cond" : {  "type" : "eq",
                       "values" : ["nombre", "Juan"]
                   },
           "lrel" : {  "type" : "sigma",
                       "cond" : {   "type" : "eq",
                                    "values" : ["edad", 18]
                                },
-                      "rel" : Personas
+                      "rel" : "Personas"
                     },
-          "rrel" : Ganadores
+          "rrel" : "Ganadores"
       }
       ------------------------------->
       {   "type" : "sigma",
-          "cond" : {   "type" : "eq",
-                       "values" : ["edad", 18]
+          "cond" : {  "type" : "eq",
+                      "values" : ["edad", 18]
                    },
           "rel" : {   "type" : "join",
                       "cond" : {   "type" : "eq",
                                    "values" : ["nombre", "Juan"]
                                },
-                      "lrel" : Personas,
-                      "rrel" : Ganadores
+                      "lrel" : "Personas",
+                      "rrel" : "Ganadores"
                   }
       }
       
@@ -283,20 +283,20 @@
       Theta2: premio=Mundial
       
       {   "type" : "join",
-          "cond" : {   "type" : "eq",
+          "cond" : {  "type" : "eq",
                       "values" : ["nombre", "Juan"]
                   },
           "lrel" : {  "type" : "sigma",
                       "cond" : {   "type" : "eq",
                                    "values" : ["edad", 18]
                                },
-                      "rel" : Personas
+                      "rel" : "Personas"
                     },
           "rrel" : {  "type" : "sigma",
                       "cond" : {   "type" : "eq",
                                    "values" : ["premio", "Mundial"]
                                }
-                      "rel" : Ganadores
+                      "rel" : "Ganadores"
                     }
       }
       --------------------------------------->
@@ -315,8 +315,8 @@
                       "cond" : {   "type" : "eq",
                             "values" : ["nombre", "Juan"]
                         },
-                      "lrel" : Personas,
-                      "rrel" : Ganadores
+                      "lrel" : "Personas",
+                      "rrel" : "Ganadores"
                   }
       }
 
@@ -343,11 +343,11 @@
                   },
         "lrel" :  {   "type" : "pi",
                       "proj" : ["edad"],
-                      "rel" : Personas
+                      "rel" : "Personas"
                   },
         "rrel" : {    "type" : "pi",
                       "proj" : ["premio"],
-                      "rel" : ganadores
+                      "rel" : "Ganadores"
                   }
     }
      ----------------------------------->
@@ -357,8 +357,8 @@
                     "cond" :{   "type" : "eq",
                                   "values" : ["nombre", "Juan"]
                               },
-                    "lrel" : Personas,
-                    "rrel" : Ganadores
+                    "lrel" : "Personas",
+                    "rrel" : "Ganadores"
                 }
     }
     
@@ -381,16 +381,16 @@
     {   "type" : "pi",
         "proj" : [edad, premio],
         "rel" : { "type" : "join",
-                  "cond" : {   "type" : "eq",
+                  "cond" : {      "type" : "eq",
                                   "values" : ["nombre", "Juan"]
-                              },
-                  "lrel" :  {   "type" : "pi",
-                                "proj" : [edad, sexo],
-                                "rel" : Personas
                             },
-                  "rrel" : {   "type" : "pi",
-                                "proj" : [premio, nacionalidad],
-                                "rel" : Ganadores
+                  "lrel" :  {   "type" : "pi",
+                                "proj" : ["edad", "sexo"],
+                                "rel" : "Personas"
+                            },
+                  "rrel" : {    "type" : "pi",
+                                "proj" : ["premio", "nacionalidad"],
+                                "rel" : "Ganadores"
                             }
                 }
     }
@@ -398,11 +398,11 @@
     {   "type" : "pi",
         "proj" : [edad, premio],
         "rel" :{    "type" : "join",
-                    "cond" :{   "type" : "eq",
+                    "cond" :{     "type" : "eq",
                                   "values" : ["nombre", "Juan"]
                               },
-                    "lrel" : Personas,
-                    "rrel" : Ganadores
+                    "lrel" : "Personas",
+                    "rrel" : "Ganadores"
                 }
      }
 
