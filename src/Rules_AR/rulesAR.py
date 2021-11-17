@@ -1,6 +1,6 @@
 import json
 
-//JSON de ejemplo 1
+#JSON de ejemplo 1
 json = {"type": "sigma",
                 "cond": {"type": "eq",
                               "values": ["edad", 18]
@@ -13,7 +13,7 @@ json = {"type": "sigma",
                         }
               }
 
-//JSON de ejemplo 2
+#JSON de ejemplo 2
 jsonPrueba3Sigmas = {"type": "sigma",
                     "cond": {"type": "eq",
                                   "values": ["edad", 18]
