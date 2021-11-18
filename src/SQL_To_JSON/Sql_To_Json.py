@@ -2,30 +2,30 @@
 from mo_sql_parsing import parse
 
 def parse_Sql_To_Json(sql):
-    previusJson = parse(sql);
-    return parse_Sql_Json(previusJson)
+    previousJson = parse(sql);
+    return parse_Sql_Json(previousJson)
 
 
-def parse_Sql_Json(previusJson):
-    if "select" in  previusJson:
-        return sql_select(previusJson)
+def parse_Sql_Json(previousJson):
+    if "select" in  previousJson:
+        return sql_select(previousJson)
     
-    elif "eq" in previusJson:
-       return sql_eq(previusJson)
+    elif "eq" in previousJson:
+       return sql_eq(previousJson)
 
-    elif "where" in previusJson:
-        return sql_where(previusJson)
+    elif "where" in previousJson:
+        return sql_where(previousJson)
 
 
-    elif "from" in previusJson:
+    elif "from" in previousJson:
         #si devuelve mas de uno es producto cartesiano
-        return sql_from(previusJson)
+        return sql_from(previousJson)
         
 
 
-def sql_select(previusJson):
+def sql_select(previousJson):
     json = {}
-    listAux = previusJson["select"]
+    listAux = previousJson["select"]
     values = []
     if isinstance(listAux, list):
         for i in listAux:
@@ -34,28 +34,28 @@ def sql_select(previusJson):
         values.append(listAux["value"])
     json["type"] = "pi"
     json["proj"] = values
-    del previusJson["select"]
-    json["rel"] =  parse_Sql_Json(previusJson)
+    del previousJson["select"]
+    json["rel"] =  parse_Sql_Json(previousJson)
     return json
 
-def sql_eq(previusJson):
+def sql_eq(previousJson):
     json = {}
     json["type"] = "eq"
-    json["values"] = previusJson["eq"]
+    json["values"] = previousJson["eq"]
     return json
 
-def sql_where(previusJson):
+def sql_where(previousJson):
     json={}
     json["type"] = "sigma"
-    auxJson = previusJson["where"]
+    auxJson = previousJson["where"]
     json["cond"] = parse_Sql_Json(auxJson)
-    del previusJson["where"]
-    json["rel"] = parse_Sql_Json(previusJson)
+    del previousJson["where"]
+    json["rel"] = parse_Sql_Json(previousJson)
     return json
 
 
-def sql_from(previusJson):
-    value = previusJson["from"]
+def sql_from(previousJson):
+    value = previousJson["from"]
     if isinstance(value, list):
         return
     else:
