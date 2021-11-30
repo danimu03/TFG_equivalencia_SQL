@@ -7,24 +7,24 @@ class TestSqlJson(unittest.TestCase):
     def test_one(self):
         #res = parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\"")
         res = {"type" : "example"}
-        expected = {"type" : "pi", 
+        expected = {"type" : "pi",
                     "proj" : ["Nombre"],
                     "rel" : {"type" : "sigma",
-                            "cond" : {"type": "eq",	
+                            "cond" : {"type": "eq",
                                     "values" : ["Pais", "España"]},
                             "rel" :	{"type" : "rel",
 							        "table" : "Persona"}
                             }
                 }
-        self.assertTrue(res == expected)
-    
+        self.assertEqual(res, expected)
+
     def test_two(self):
         #res = parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl JOIN Proyecto ON Dni = DniDir")
         res = {"type" : "example"}
         expected = {"type" : "pi",
 	                "proj" : ["Nombre", "Ap1", "Ap2"],
 	                "rel" : {"type" : "join",
-                            "cond" : {"type" : "eq",	
+                            "cond" : {"type" : "eq",
                                     "values" : ["Dni", "DniDir"]},
                             "lrel" : {"type" : "rel",
                                     "table"	: "Empl"},
@@ -32,7 +32,7 @@ class TestSqlJson(unittest.TestCase):
                                     "table"	:	"Proyecto"}
 			                }
                     }
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_three(self):
         #res = parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl, Dedicacion WHERE Dni=DniEmpl")
@@ -40,7 +40,7 @@ class TestSqlJson(unittest.TestCase):
         expected = {"type" : "pi",
 	                "proj" : ["Nombre", "Ap1", "Ap2"],
 	                "rel" :	{"type" : "sigma",
-                            "cond" : {"type" : "eq",	
+                            "cond" : {"type" : "eq",
                                     "values" : ["Dni", "DniEmpl"]},
                             "rel" : {"type" : "pro",
                                     "lrel" : {"type" : "rel",
@@ -50,7 +50,7 @@ class TestSqlJson(unittest.TestCase):
 						            }
 			                }
                     }
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_four(self):
         #res = parse_Sql_To_Json("SELECT p.nombre FROM curso AS c, profesor AS p WHERE p.nombre = \"Juan Carlos\" AND c.id = \"IS345\"")
@@ -58,11 +58,11 @@ class TestSqlJson(unittest.TestCase):
         expected = {"type" : "pi",
                     "proj" : ["Nombre", "Ap1", "Ap2"],
                     "rel" : {"type" : "sigma",
-                            "cond" : {"type" : "and",	
+                            "cond" : {"type" : "and",
                                     "values" : [{"type" : "eq",
                                                 "values" : ["p.nombre", "Juan Carlos"]},
                                                 {"type" : "eq",
-                                                "values" : ["c.id", "IS345"]}]	
+                                                "values" : ["c.id", "IS345"]}]
                                     },
                             "rel" :	{"type" : "pro",
                                     "lrel" : {"type" : "rho",
@@ -78,8 +78,55 @@ class TestSqlJson(unittest.TestCase):
                                     }
                             }
                     }
-        self.assertTrue(res == expected)
-    
+        self.assertEqual(res, expected)
+
+    def test_five(self):
+        #res = parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\"")
+        res = {'type': 'pi', 'proj': ['Nombre', 'Edad'], 'rel': {'type': 'sigma', 'cond': {'type': 'eq', 'values': ['Pais', 'España']}, 'rel': {'type': 'rel', 'table': 'Persona'}}}
+        expected = {"type": "pi",
+                    "proj": ["Nombre", "Edad"],
+                    "rel": {"type": "sigma",
+                            "cond": {"type": "eq",
+                                     "values": ["Pais", "España"]
+                                     },
+                            "rel": {"type": "rel",
+                                    "table": "Persona"
+                                    }
+                            }
+                    }
+        self.assertEqual(res, expected)
+
+    def test_six(self):
+        # res = parse_Sql_To_Json("SELECT Nombre, Edad, Telefono FROM Persona WHERE Pais = \"España\"")
+        res = {'type': 'pi', 'proj': ['Nombre', 'Edad', 'Telefono'], 'rel': {'type': 'sigma', 'cond': {'type': 'eq', 'values': ['Pais', 'España']}, 'rel': {'type': 'rel', 'table': 'Persona'}}}
+        expected = {"type": "pi",
+                    "proj": ["Nombre", "Edad", "Telefono"],
+                    "rel": {"type": "sigma",
+                            "cond": {"type": "eq",
+                                     "values": ["Pais", "España"]
+                                     },
+                            "rel": {"type": "rel",
+                                    "table": "Persona"
+                                    }
+                            }
+                    }
+        self.assertEqual(res, expected)
+
+    def test_seven(self):
+        # res = parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona WHERE Telefono = 12345")
+        res = {'type': 'pi', 'proj': ['Nombre', 'Edad'], 'rel': {'type': 'sigma', 'cond': {'type': 'eq', 'values': ['Telefono', 12345]}, 'rel': {'type': 'rel', 'table': 'Persona'}}}
+        expected = {"type": "pi",
+                    "proj": ["Nombre", "Edad"],
+                    "rel": {"type": "sigma",
+                            "cond": {"type": "eq",
+                                     "values": ["Telefono", 12345]
+                                     },
+                            "rel": {"type": "rel",
+                                    "table": "Persona"
+                                    }
+                            }
+                    }
+        self.assertEqual(res, expected)
 
 
 if __name__ == "__main__":
