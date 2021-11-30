@@ -9,6 +9,9 @@ def parse_Sql_To_Json(sql):
 def parse_Sql_Json(previousJson):
     if "select" in  previousJson:
         return sql_select(previousJson)
+
+    elif "and" in previousJson:
+        return sql_and(previousJson)
     
     elif "eq" in previousJson:
        return sql_eq(previousJson)
@@ -37,11 +40,23 @@ def sql_select(previousJson):
     json["rel"] =  parse_Sql_Json(previousJson)
     return json
 
+def sql_and(previousJson):
+    json = {}
+    json["type"] = "and"
+    aux = previousJson["and"]
+    values = []
+    for i in aux:
+        values.append(parse_Sql_Json(i))
+    json["values"] = values
+    return json
+
 def sql_eq(previousJson):
     json = {}
     json["type"] = "eq"
     json["values"] = previousJson["eq"]
     return json
+
+
 
 def sql_where(previousJson):
     json={}
@@ -83,9 +98,9 @@ def sql_pro(value):
 
 
 
-print(parse("SELECT Nombre, direccion FROM usuario, callejero, comunicacion, casa WHERE pais = \"España\""))
+#print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
 
-print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, callejero, comunicacion, casa WHERE pais = \"España\""))
+#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
 
-print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
+#print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
