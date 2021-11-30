@@ -43,8 +43,8 @@
     {   "type" : "pro",
         "rel1" : |relation| / {|other operation|},
         "rel2" : |relation| / {|other operation|},
-	...
-	"reln" :  |relation| / {|other operation|}
+        ...
+        "reln" :  |relation| / {|other operation|}
     }
 
 
