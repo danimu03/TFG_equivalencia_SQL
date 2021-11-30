@@ -41,8 +41,10 @@
 # Cartesian product
 
     {   "type" : "pro",
-        "lrel" : |relation| / {|other operation|},
-        "rrel" : |relation| / {|other operation|}
+        "rel1" : |relation| / {|other operation|},
+        "rel2" : |relation| / {|other operation|},
+	...
+	"reln" :  |relation| / {|other operation|}
     }
 
 
