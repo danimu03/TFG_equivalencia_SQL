@@ -82,13 +82,25 @@ def sql_from(previousJson):
 def sql_pro(value):
     json = {}
     json["type"] = "pro"
-    json["lrel"] = value[0]
+
+    lreljson = {}
+    lreljson["type"] = "rel"
+    lreljson["table"] = value[0]
+    json["lrel"] = lreljson
     del value[0]
+
+
     if len(value) > 1:
         json["rrel"] = sql_pro(value)
     else:
-        json["rrel"] = value[0]
+        rreljson = {}
+        rreljson["type"] = "rel"
+        rreljson["table"] = value[0]
         del value[0]
+        json["rrel"] = rreljson
+
+
+
     return json
 
 
@@ -100,7 +112,7 @@ def sql_pro(value):
 
 #print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
 
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
+print(parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl, Dedicacion, Persona, Sector, Jefe WHERE Dni=DniEmpl"))
 
 #print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
