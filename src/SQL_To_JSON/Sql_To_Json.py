@@ -16,7 +16,6 @@ def parse_Sql_Json(previousJson):
     elif "where" in previousJson:
         return sql_where(previousJson)
 
-
     elif "from" in previousJson:
         #si devuelve mas de uno es producto cartesiano
         return sql_from(previousJson)
@@ -57,7 +56,11 @@ def sql_where(previousJson):
 def sql_from(previousJson):
     value = previousJson["from"]
     if isinstance(value, list):
-        return
+        json = {}
+        json["type"] = "pro"
+        for i in range(0,len(value)):
+            json["rel"+str(i+1)] = value[i]
+        return json
     else:
         json = {}
         json["type"] = "rel"
@@ -70,7 +73,9 @@ def sql_from(previousJson):
 
 
 
-print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\""))
-print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\""))
+print(parse("SELECT Nombre, direccion FROM usuario, callejero WHERE pais = \"España\""))
+
+print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, callejero WHERE pais = \"España\""))
 
 print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
+
