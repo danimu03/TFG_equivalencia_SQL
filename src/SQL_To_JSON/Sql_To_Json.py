@@ -112,7 +112,7 @@ def sql_pro(value):
 
 #print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
 
-print(parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl, Dedicacion, Persona, Sector, Jefe WHERE Dni=DniEmpl"))
+print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\""))
 
 #print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
