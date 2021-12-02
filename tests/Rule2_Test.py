@@ -80,11 +80,11 @@ class TestRule2(unittest.TestCase):
                        }
         expected = {'type': 'sigma',
                     'cond': {'type': 'eq',
-                             'values': ['hombre', 'sexo']
+                             'values': ['Juan', 'nombre']
                              },
                     'rel': {'type': 'sigma',
                             'cond': {'type': 'eq',
-                                     'values': ['juan', 'nombre']},
+                                     'values': ['hombre', 'sexo']},
                             'rel': 'Persona'
                             }
                     }
@@ -124,11 +124,11 @@ class TestRule2(unittest.TestCase):
                        }
         expected = {'type': 'sigma',
                     'cond': {'type': 'eq',
-                             'values': [18, 'edad']
+                             'values': [18, 'EdAd']
                              },
                     'rel': {'type': 'sigma',
                             'cond': {'type': 'eq',
-                                     'values': ['hombre', 'sexo']},
+                                     'values': ['Hombre', 'sexo']},
                             'rel': 'Persona'
                             }
                     }
@@ -146,11 +146,33 @@ class TestRule2(unittest.TestCase):
                        }
         expected = {'type': 'sigma',
                     'cond': {'type': 'eq',
-                             'values': ['apellido1', 'gonzalez']
+                             'values': ['Fernandez', 'apellido2']
                              },
                     'rel': {'type': 'sigma',
                             'cond': {'type': 'eq',
-                                     'values': ['apellido2', 'fernandez']},
+                                     'values': ['Gonzalez', 'apellido1']},
+                            'rel': 'Persona'
+                            }
+                    }
+        res = rulesAR.rule2(jsonExample)
+        self.assertTrue(res == expected)
+
+    def test_float_int(self):
+        jsonExample = {'type': 'sigma',
+                       'cond': {'type': 'eq',
+                                'values': [20.56, 1]},
+                       'rel': {'type': 'sigma',
+                               'cond': {'type': 'eq',
+                                        'values': [145, 13.2]},
+                               'rel': 'Persona'}
+                       }
+        expected = {'type': 'sigma',
+                    'cond': {'type': 'eq',
+                             'values': [13.2, 145]
+                             },
+                    'rel': {'type': 'sigma',
+                            'cond': {'type': 'eq',
+                                     'values': [20.56, 1]},
                             'rel': 'Persona'
                             }
                     }

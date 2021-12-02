@@ -58,28 +58,40 @@ def rule2(jsonSQL):
     valuesArriba = jsonSQL['cond']['values']
     valuesAbajo = jsonSQL['rel']['cond']['values']
 
-    # ordenamos los values alfabéticamente
-    valuesArriba.sort(key=str)
-    valuesAbajo.sort(key=str)
-
-    # pasamos todos los values a minuscula para poder ordenar bien
-    # si es un entero, no lo pasamos a minuscula (obviamente)
-    for i in range(len(valuesArriba)):
-        if type(valuesArriba[i]) != int:
-            valuesArriba[i] = valuesArriba[i].lower()
-    for i in range(len(valuesAbajo)):
-        if type(valuesAbajo[i]) != int:
-            valuesAbajo[i] = valuesAbajo[i].lower()
-
-    if str(valuesAbajo[0]) < str(valuesArriba[0]):
-        jsonSQL['cond']['values'] = valuesAbajo
-        jsonSQL['rel']['cond']['values'] = valuesArriba
+    # ordenamos los valuesArriba
+    tipo1 = str(type(valuesArriba[0]))
+    tipo2 = str(type(valuesArriba[1]))
+    if tipo1 == tipo2:
+        valuesArriba.sort()
     else:
-        jsonSQL['cond']['values'] = valuesArriba
-        jsonSQL['rel']['cond']['values'] = valuesAbajo
+        if tipo2 < tipo1:
+            aux = valuesArriba[0]
+            valuesArriba[0] = valuesArriba[1]
+            valuesArriba[1] = aux
+
+    # ordenamos los valuesAbajo
+    tipo1 = str(type(valuesAbajo[0]))
+    tipo2 = str(type(valuesAbajo[1]))
+    if tipo1 == tipo2:
+        valuesAbajo.sort()
+    else:
+        if tipo2 < tipo1:
+            aux = valuesAbajo[0]
+            valuesAbajo[0] = valuesAbajo[1]
+            valuesAbajo[1] = aux
+
+    tipo1 = str(type(valuesArriba[0]))
+    tipo2 = str(type(valuesAbajo[0]))
+    if tipo1 == tipo2:
+        if valuesAbajo[0] < valuesArriba[0]:
+            jsonSQL['cond']['values'] = valuesAbajo
+            jsonSQL['rel']['cond']['values'] = valuesArriba
+    else:
+        if tipo2 < tipo1:
+            jsonSQL['cond']['values'] = valuesAbajo
+            jsonSQL['rel']['cond']['values'] = valuesArriba
 
     return jsonSQL
-
 
 if __name__ == '__main__':
     jsonSQL = {}
