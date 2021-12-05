@@ -33,5 +33,63 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
                     }
         self.assertEqual(res, expected)
 
+    def test_ANDTwoEquals(self):
+        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345")
+        expected = {"type": "pi",
+                    "proj": ["Nombre"],
+                    "rel": {"type": "sigma",
+                            "cond": {"type": "and",
+                                     "values": [{"type": "eq",
+                                                 "values": ["Pais", "España"]},
+                                                {"type": "eq",
+                                                 "values": ["Telefono", 12345]}]
+                                     },
+                            "rel": {"type": "rel",
+                                    "table": "Persona"
+                                    }
+                            }
+                    }
+        self.assertEqual(res, expected)
+
+    def test_ANDThreeEquals(self):
+        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"")
+        expected = {"type": "pi",
+                    "proj": ["Nombre"],
+                    "rel": {"type": "sigma",
+                            "cond": {"type": "and",
+                                     "values": [{"type": "eq",
+                                                 "values": ["Pais", "España"]},
+                                                {"type": "eq",
+                                                 "values": ["Telefono", 12345]},
+                                                 {"type": "eq",
+                                                  "values": ["Id", "IS1452"]}]
+                                     },
+                            "rel": {"type": "rel",
+                                    "table": "Persona"
+                                    }
+                            }
+                    }
+        self.assertEqual(res, expected)
+
+    def test_ANDandVariousSelects(self):
+        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"")
+        expected = {"type": "pi",
+                    "proj": ["Nombre", "Edad"],
+                    "rel": {"type": "sigma",
+                            "cond": {"type": "and",
+                                     "values": [{"type": "eq",
+                                                 "values": ["Pais", "España"]},
+                                                {"type": "eq",
+                                                 "values": ["Telefono", 12345]},
+                                                 {"type": "eq",
+                                                  "values": ["Id", "IS1452"]}]
+                                     },
+                            "rel": {"type": "rel",
+                                    "table": "Persona"
+                                    }
+                            }
+                    }
+        self.assertEqual(res, expected)
+
 if __name__ == "__main__":
     unittest.main()
