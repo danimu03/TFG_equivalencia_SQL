@@ -2,19 +2,33 @@
 from mo_sql_parsing import parse
 
 def parse_Sql_To_Json(sql):
+    """
+    Parses a SQL query to JSON
+
+    :param sql: SQL query
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
+
     previousJson = parse(sql);
     return parse_Sql_Json(previousJson)
 
 
 def parse_Sql_Json(previousJson):
-    if "select" in  previousJson:
+    """
+    Transforms the dict created with mo_sql_parsing to a dict according to the definitions created
+
+    :param previousJson: dict to transform
+    :return:
+    """
+
+    if "select" in previousJson:
         return sql_select(previousJson)
 
     elif "and" in previousJson:
         return sql_and(previousJson)
     
     elif "eq" in previousJson:
-       return sql_eq(previousJson)
+        return sql_eq(previousJson)
 
     elif "where" in previousJson:
         return sql_where(previousJson)
@@ -112,7 +126,7 @@ def sql_pro(value):
 
 #print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
 
-print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\""))
+#print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona"))
 
 #print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
