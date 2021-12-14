@@ -86,12 +86,50 @@ def sql_from(previousJson):
     value = previousJson["from"]
     del previousJson["from"]
     if isinstance(value, list):
-        return sql_pro(value)
+        return sql_pro_or_join(value)
     else:
         json = {}
         json["type"] = "rel"
         json["table"] = value
         return json
+
+def sql_pro_or_join(values):
+    for i in values:
+        if isinstance(i, dict):
+            if "join" in i.keys():
+                return sql_join(values)
+            else:
+                return sql_pro(values)
+    return sql_pro(values)
+
+def sql_join(value):
+    json = {}
+    json["type"] = "join"
+    valueJoin = value[1]
+    json["cond"] = sql_eq(valueJoin["on"])
+
+    lreljson = {}
+    lreljson["type"] = "rel"
+    lreljson["table"] = sql_join_dict(value[0])
+    json["lrel"] = lreljson
+    del value[0]
+
+    if len(value) > 1:
+        json["rrel"] = sql_join(value)
+    else:
+        rreljson = {}
+        rreljson["type"] = "rel"
+        rreljson["table"] = sql_join_dict(value[0])
+        del value[0]
+        json["rrel"] = rreljson
+    return json
+
+def sql_join_dict(value):
+    if isinstance(value, dict):
+        return value["join"]
+    else:
+        return value
+    
 
 def sql_pro(value):
     json = {}
@@ -99,7 +137,7 @@ def sql_pro(value):
 
     lreljson = {}
     lreljson["type"] = "rel"
-    lreljson["table"] = crossJoin(value[0])
+    lreljson["table"] = sql_crossJoin(value[0])
     json["lrel"] = lreljson
     del value[0]
 
@@ -109,17 +147,19 @@ def sql_pro(value):
     else:
         rreljson = {}
         rreljson["type"] = "rel"
-        rreljson["table"] = crossJoin(value[0])
+        rreljson["table"] = sql_crossJoin(value[0])
         del value[0]
         json["rrel"] = rreljson
     return json
 
 
-def crossJoin(pre):
+def sql_crossJoin(pre):
     if isinstance(pre, dict):
         return pre["cross join"]
     else:
         return pre 
+
+
 
 
     
@@ -136,5 +176,6 @@ def crossJoin(pre):
 
 #print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
-print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
+#print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
+print(parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl JOIN Proyecto ON Dni = DniDir"))
 
