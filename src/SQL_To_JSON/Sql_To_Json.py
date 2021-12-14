@@ -99,7 +99,7 @@ def sql_pro(value):
 
     lreljson = {}
     lreljson["type"] = "rel"
-    lreljson["table"] = value[0]
+    lreljson["table"] = crossJoin(value[0])
     json["lrel"] = lreljson
     del value[0]
 
@@ -109,14 +109,17 @@ def sql_pro(value):
     else:
         rreljson = {}
         rreljson["type"] = "rel"
-        rreljson["table"] = value[0]
+        rreljson["table"] = crossJoin(value[0])
         del value[0]
         json["rrel"] = rreljson
-
-
-
     return json
 
+
+def crossJoin(pre):
+    if isinstance(pre, dict):
+        return pre["cross join"]
+    else:
+        return pre 
 
 
     
@@ -124,9 +127,14 @@ def sql_pro(value):
 
 
 
-#print(parse("SELECT Nombre, direccion FROM usuario WHERE pais = \"España\" and num = 1"))
+#print(parse("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
+#print(parse("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
+#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
+#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
 
 #print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona"))
 
 #print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
+
+print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
 
