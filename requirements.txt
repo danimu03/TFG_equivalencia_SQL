@@ -1,1 +1,5 @@
-mo-sql-parsing-dev==8.5.21328
+mo-dots==8.4.21326
+mo-future==6.2.21303
+mo-imports==7.3.21313
+mo-parsing==8.10.21343
+mo-sql-parsing==8.10.21343
