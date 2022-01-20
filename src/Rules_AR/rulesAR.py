@@ -93,6 +93,53 @@ def rule2(jsonSQL):
 
     return jsonSQL
 
+def rule3(jsonSQL):
+
+    relation = jsonSQL['rel']['rel']
+    jsonSQL['rel'] = relation
+
+    return jsonSQL
+
+def rule4(jsonSQL):
+
+    valuesPi = jsonSQL
+    valuesSigma = jsonSQL['rel']
+    relation = jsonSQL['rel']['rel']
+
+    jsonSQL = valuesSigma
+    jsonSQL['rel'] = valuesPi
+    jsonSQL['rel']['rel'] = relation
+
+    return jsonSQL
+
+def rule5A(jsonSQL):
+
+    valuesPro = jsonSQL['rel']
+    valuesCondSigma = jsonSQL['cond']
+
+    jsonSQL = { "type" : "join",
+                "cond" : valuesCondSigma,
+                "lrel" : valuesPro["lrel"],
+                "rrel" : valuesPro["rrel"]
+    }
+
+    return jsonSQL
+
+def rule5B(jsonSQL):
+
+    valuesCondSigma = jsonSQL['cond']
+    valuesJoin = jsonSQL['rel']
+    jsonAnd = { "type" : "and",
+                "values" : [valuesCondSigma, valuesJoin['cond']]
+    }
+    jsonSQL = { "type" : "join",
+                "cond" : jsonAnd,
+                "lrel" : valuesJoin["lrel"],
+                "rrel" : valuesJoin["rrel"]
+    }
+    return jsonSQL
+
+
 if __name__ == '__main__':
     jsonSQL = {}
     rule2(jsonSQL)
