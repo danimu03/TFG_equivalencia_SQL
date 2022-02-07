@@ -1,5 +1,5 @@
 import unittest
-from src.SQL_To_JSON import Sql_To_Json as sqlJSON
+import src.SQL_To_JSON.Sql_To_Json as sqlJSON
 
 class TestSqlJson(unittest.TestCase):
 
