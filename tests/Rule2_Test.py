@@ -1,5 +1,5 @@
 import unittest
-import rulesAR
+import src.Rules_AR.rulesAR as rulesAR
 
 class TestRule2(unittest.TestCase):
 
@@ -23,7 +23,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_numeros_reves(self):
         jsonExample = {'type': 'sigma',
@@ -45,7 +45,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_palabras(self):
         jsonExample = {'type': 'sigma',
@@ -67,7 +67,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_palabras_mayuscula(self):
         jsonExample = {'type': 'sigma',
@@ -89,7 +89,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_palabras_numeros(self):
         jsonExample = {'type': 'sigma',
@@ -111,7 +111,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_completo(self):
         jsonExample = {'type': 'sigma',
@@ -133,7 +133,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_parecidos(self):
         jsonExample = {'type': 'sigma',
@@ -155,7 +155,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
     def test_float_int(self):
         jsonExample = {'type': 'sigma',
@@ -177,7 +177,7 @@ class TestRule2(unittest.TestCase):
                             }
                     }
         res = rulesAR.rule2(jsonExample)
-        self.assertTrue(res == expected)
+        self.assertEqual(res, expected)
 
 if __name__ == "__main__":
     unittest.main()

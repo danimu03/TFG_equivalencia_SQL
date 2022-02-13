@@ -1,5 +1,5 @@
 import unittest
-import rulesAR
+import src.Rules_AR.rulesAR as rulesAR
 
 
 class TestRule1(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestRule1(unittest.TestCase):
                     'rel': 'Persona'}
         try:
             res = rulesAR.rule1(jsonExample)
-            self.assertTrue(res == expected)
+            self.assertEqual(res, expected)
         except TypeError as e:
             print(e)
             print('He fallado yo: test_simple1')
@@ -46,7 +46,7 @@ class TestRule1(unittest.TestCase):
                     'rel': 'Personas'}
         try:
             res = rulesAR.rule1(jsonExample)
-            self.assertTrue(res == expected)
+            self.assertEqual(res, expected)
         except TypeError as e:
             print(e)
             print('He fallado yo: test_simple2')
@@ -73,7 +73,7 @@ class TestRule1(unittest.TestCase):
                     'rel': 'Personas'}
         try:
             res = rulesAR.rule1(jsonExample)
-            self.assertTrue(res == expected)
+            self.assertEqual(res, expected)
         except TypeError as e:
             print(e)
             print('He fallado yo: test_tres_sigmas')
@@ -91,7 +91,7 @@ class TestRule1(unittest.TestCase):
                     'rel': 'Personas'}
         try:
             res = rulesAR.rule1(jsonExample)
-            self.assertTrue(res == expected)
+            self.assertEqual(res, expected)
         except TypeError as e:
             print(e)
             print('He fallado yo: test_no_cond')
@@ -111,7 +111,7 @@ class TestRule1(unittest.TestCase):
                      'rel': 'Persona'}
         try:
             res = rulesAR.rule1(jsonExample)
-            self.assertTrue(res == expected)
+            self.assertEqual(res, expected)
         except TypeError as e:
             print(e)
             print('He fallado yo: test_values_vacio')

@@ -117,6 +117,7 @@ def rule5A(jsonSQL):
     valuesPro = jsonSQL['rel']
     valuesCondSigma = jsonSQL['cond']
 
+
     jsonSQL = { "type" : "join",
                 "cond" : valuesCondSigma,
                 "lrel" : valuesPro["lrel"],
@@ -129,16 +130,44 @@ def rule5B(jsonSQL):
 
     valuesCondSigma = jsonSQL['cond']
     valuesJoin = jsonSQL['rel']
-    jsonAnd = { "type" : "and",
-                "values" : [valuesCondSigma, valuesJoin['cond']]
-    }
+    leftRel = valuesJoin["lrel"]
+    rightRel = valuesJoin["rrel"]
+
+    if 'type' in valuesJoin['cond'] and valuesJoin['cond']['type'] == 'and':
+        newCond = valuesJoin['cond']['values']
+        finalValues = [valuesCondSigma]
+        for i in newCond:
+            finalValues.append(i)
+        jsonAnd = {"type": "and",
+                   "values": finalValues
+                   }
+    else:
+        jsonAnd = {"type": "and",
+                   "values": [valuesCondSigma, valuesJoin['cond']]
+                   }
+
     jsonSQL = { "type" : "join",
                 "cond" : jsonAnd,
-                "lrel" : valuesJoin["lrel"],
-                "rrel" : valuesJoin["rrel"]
+                "lrel" : leftRel,
+                "rrel" : rightRel
     }
     return jsonSQL
 
+def rule6(jsonSQL):
+    right = jsonSQL['rrel']
+    left = jsonSQL['lrel']
+
+    jsonSQL['rrel'] = left
+    jsonSQL['lrel'] = right
+    return jsonSQL
+
+def rule7(jsonSQL):
+    right = jsonSQL['rrel']
+    left = jsonSQL['lrel']
+
+    jsonSQL['rrel'] = left
+    jsonSQL['lrel'] = right
+    return jsonSQL
 
 if __name__ == '__main__':
     jsonSQL = {}
