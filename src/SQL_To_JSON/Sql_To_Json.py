@@ -1,6 +1,20 @@
 
 from mo_sql_parsing import parse
 
+
+class ErrorSqlQuery(ValueError):
+    def __init__(self, message, *args):         
+        super(ErrorSqlQuery, self).__init__(message, *args)
+
+def checkKeys(json, support):
+    for k in json.keys():
+        if k not in support:
+            raise ErrorSqlQuery("SQL QUERY NOT SUPPORTED")
+
+        if isinstance(json[k], dict):
+            checkKeys(json[k], support)
+    return True
+
 def parse_Sql_To_Json(sql):
     """
     Parses a SQL query to JSON
@@ -8,9 +22,13 @@ def parse_Sql_To_Json(sql):
     :param sql: SQL query
     :return: dict with the query transformed to relational algebra according to the definitions created
     """
-
-    previousJson = parse(sql);
-    return parse_Sql_Json(previousJson)
+    supportSQL = ("select", "from", "join", "on", "eq", "where", "and")
+    try:
+        previousJson = parse(sql);
+        checkKeys(previousJson, supportSQL)
+        return parse_Sql_Json(previousJson)
+    except Exception as e:
+        print(e)
 
 
 def parse_Sql_Json(previousJson):
@@ -20,7 +38,6 @@ def parse_Sql_Json(previousJson):
     :param previousJson: dict to transform
     :return:
     """
-
     if "select" in previousJson:
         return sql_select(previousJson)
 
@@ -34,7 +51,7 @@ def parse_Sql_Json(previousJson):
         return sql_where(previousJson)
 
     elif "from" in previousJson:
-        #si devuelve mas de uno es producto cartesiano
+        #si devuelve mas de uno es producto cartesiano o join
         return sql_from(previousJson)
         
 
@@ -167,15 +184,21 @@ def sql_crossJoin(pre):
 
 
 
-#print(parse("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
+print(parse("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
 #print(parse("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
-
+print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
+print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
+print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1 GROUP BY name"))
 #print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona"))
 
 #print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
 
 #print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
-print(parse_Sql_To_Json("SELECT Nombre, Ap1, Ap2 FROM Empl JOIN Proyecto ON Dni = DniDir"))
+
+
+    
+
+#supportSQL = ("select", "from", "join", "on", "eq")
+#json = parse("SELECT Nombre, Ap1, Ap2 FROM Empl, Empl2 JOIN Proyecto ON Dni = DniDir")
+#print(checkKeys(json, supportSQL))
 
