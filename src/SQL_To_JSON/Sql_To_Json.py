@@ -7,12 +7,22 @@ class ErrorSqlQuery(ValueError):
         super(ErrorSqlQuery, self).__init__(message, *args)
 
 def checkKeys(json, support):
+    """
+    check if all SQL operations are supported, if not, throw an exception
+
+    :param json: dict with operations, support: dict with supported operations
+    :return:
+    """
     for k in json.keys():
         if k not in support:
-            raise ErrorSqlQuery("SQL QUERY NOT SUPPORTED")
-
+            raise ErrorSqlQuery("SQL QUERY NOT SUPPORTED: "+ k)
         if isinstance(json[k], dict):
             checkKeys(json[k], support)
+        elif isinstance(json[k], list):
+            for e in json[k]:
+                if isinstance(e, dict):
+                    checkKeys(e, support)
+
     return True
 
 def parse_Sql_To_Json(sql):
@@ -22,7 +32,7 @@ def parse_Sql_To_Json(sql):
     :param sql: SQL query
     :return: dict with the query transformed to relational algebra according to the definitions created
     """
-    supportSQL = ("select", "from", "join", "on", "eq", "where", "and")
+    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join")
     try:
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
@@ -57,6 +67,12 @@ def parse_Sql_Json(previousJson):
 
 
 def sql_select(previousJson):
+    """
+    Transforms the SELECT key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+
+    :param previousJson: dict to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     json = {}
     listAux = previousJson["select"]
     values = []
@@ -72,6 +88,12 @@ def sql_select(previousJson):
     return json
 
 def sql_and(previousJson):
+    """
+    Transforms the AND key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+
+    :param previousJson: dict to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     json = {}
     json["type"] = "and"
     aux = previousJson["and"]
@@ -82,6 +104,12 @@ def sql_and(previousJson):
     return json
 
 def sql_eq(previousJson):
+    """
+    Transforms the EQ key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+
+    :param previousJson: dict to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     json = {}
     json["type"] = "eq"
     json["values"] = previousJson["eq"]
@@ -90,6 +118,12 @@ def sql_eq(previousJson):
 
 
 def sql_where(previousJson):
+    """
+    Transforms the WHERE key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+
+    :param previousJson: dict to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     json={}
     json["type"] = "sigma"
     auxJson = previousJson["where"]
@@ -100,6 +134,12 @@ def sql_where(previousJson):
 
 
 def sql_from(previousJson):
+    """
+    Transforms the FROM key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+
+    :param previousJson: dict to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     value = previousJson["from"]
     del previousJson["from"]
     if isinstance(value, list):
@@ -111,6 +151,12 @@ def sql_from(previousJson):
         return json
 
 def sql_pro_or_join(values):
+    """
+    Checks if the list of received elements contains a Join or a projection and calls the corresponding functions to transform them
+
+    :param values: list of elements to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     for i in values:
         if isinstance(i, dict):
             if "join" in i.keys():
@@ -120,6 +166,12 @@ def sql_pro_or_join(values):
     return sql_pro(values)
 
 def sql_join(value):
+    """
+    Transforms the JOIN key-value pair with the list of values received.
+
+    :param value: list of elements to transform
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     json = {}
     json["type"] = "join"
     valueJoin = value[1]
@@ -142,6 +194,13 @@ def sql_join(value):
     return json
 
 def sql_join_dict(value):
+    """
+    Auxiliary function when we do not know if we have transformed all the joins of the query
+
+    :param value: list of elements to transform or a single element
+    :return: a single element if we are done or the next Join
+    """
+    
     if isinstance(value, dict):
         return value["join"]
     else:
@@ -149,6 +208,12 @@ def sql_join_dict(value):
     
 
 def sql_pro(value):
+    """
+    Transforms the CARTESIAN PRODUCT key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+
+    :param value: list of elements to transform or a single element
+    :return: dict with the query transformed to relational algebra according to the definitions created
+    """
     json = {}
     json["type"] = "pro"
 
@@ -171,6 +236,12 @@ def sql_pro(value):
 
 
 def sql_crossJoin(pre):
+    """
+    Auxiliary function when we do not know if we have transformed all the cartesian products of the query
+
+    :param pre: list of elements to transform or a single element
+    :return: a single element if we are done or the next cartesian product
+    """
     if isinstance(pre, dict):
         return pre["cross join"]
     else:
@@ -187,7 +258,7 @@ def sql_crossJoin(pre):
 print(parse("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
 #print(parse("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
 print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
-print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
+#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
 print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1 GROUP BY name"))
 #print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona"))
 
@@ -201,4 +272,5 @@ print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil W
 #supportSQL = ("select", "from", "join", "on", "eq")
 #json = parse("SELECT Nombre, Ap1, Ap2 FROM Empl, Empl2 JOIN Proyecto ON Dni = DniDir")
 #print(checkKeys(json, supportSQL))
+
 
