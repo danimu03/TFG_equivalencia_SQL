@@ -2,7 +2,7 @@ import unittest
 import src.SQL_To_JSON.Sql_To_Json as sqlJSON
 
 
-class SqlJson_Test_CARTESIAN(unittest.TestCase):
+class SqlJson_Test_JOIN(unittest.TestCase):
 
     def test_twoTable(self):
         res = sqlJSON.parse_Sql_To_Json("SELECT nombre FROM user JOIN empleado ON dni = dniempleado")
