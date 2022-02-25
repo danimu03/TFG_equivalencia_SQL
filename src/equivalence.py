@@ -16,9 +16,12 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
         # TODO: llamada que calcule la equivalencia de las dos consultas
         # parametros: json1, json2, creates
 
-        
+
     except Exception as e:
         print(e)
 
 
     return
+
+
+    
