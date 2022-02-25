@@ -38,7 +38,8 @@ def parse_Sql_To_Json(sql):
         checkKeys(previousJson, supportSQL)
         return parse_Sql_Json(previousJson)
     except Exception as e:
-        print(e)
+        # print(e) #para pruebas locales
+        raise ErrorSqlQuery(e) #para uso final
 
 
 def parse_Sql_Json(previousJson):
