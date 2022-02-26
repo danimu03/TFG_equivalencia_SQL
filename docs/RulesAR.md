@@ -496,25 +496,3 @@
                     "rrel" : "Ganadores"
                 }
      }
-  
-  
-# 12 - La selección de un natural join es un theta join
-      (σθ (R × S)) ≡ (R ⊲⊳θ S)
-      ------------------------>
-      
-      {'type' : 'sigma',
-       'cond' : 'cond' : { 'type' : 'eq',
-                           'values' : ['nombre', 'Juan']},
-       'rel': { 'type' : 'pro',
-                'lrel' : 'Personas',
-                'rrel' : 'Ganadores'}
-        }
-        ---------------------------->
-        {'type' : 'pi':
-         'cond' : 'cond' : { 'type' : 'eq',
-                           'values' : ['nombre', 'Juan']},
-         'lrel' : 'Personas',
-         'rrel' : 'Ganadores'}
-
-
-
