@@ -251,6 +251,8 @@ def sql_crossJoin(pre):
 
 
 
+
+#Hace el parse_rename del json obtenido de la librería mo_sql_parsing  NO de la nuestra
 def parse_rename(sql):
     if not isinstance(sql["from"], dict):
         name = sql["from"]
@@ -284,6 +286,10 @@ def parse_rename(sql):
                             
 
 
+print(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X'"))
+print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X'")))
+print(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND CIF = '133X'"))
+print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND CIF = '133X'")))
 
 
                     
