@@ -1,6 +1,7 @@
 
 from mo_sql_parsing import parse
 from renameSQL import rename_json
+from Creates_To_JSON.Creates_Json import create_tables_json
 
 
 class ErrorSqlQuery(ValueError):
@@ -26,7 +27,8 @@ def checkKeys(json, support):
 
     return True
 
-def parse_Sql_To_Json(sql, creates):
+
+def parse_Sql_To_Json(sql):
     """
     Parses a SQL query to JSON
 
@@ -38,6 +40,9 @@ def parse_Sql_To_Json(sql, creates):
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
 
+        #parsear creates
+        creates = ''
+        previousJson = rename_json(previousJson,creates)
         return parse_Sql_Json(previousJson)
     except Exception as e:
         # print(e) #para pruebas locales
