@@ -1,5 +1,6 @@
 
 from mo_sql_parsing import parse
+from renameSQL import rename_json
 
 
 class ErrorSqlQuery(ValueError):
@@ -25,7 +26,7 @@ def checkKeys(json, support):
 
     return True
 
-def parse_Sql_To_Json(sql):
+def parse_Sql_To_Json(sql, creates):
     """
     Parses a SQL query to JSON
 
@@ -36,6 +37,7 @@ def parse_Sql_To_Json(sql):
     try:
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
+
         return parse_Sql_Json(previousJson)
     except Exception as e:
         # print(e) #para pruebas locales
@@ -252,44 +254,7 @@ def sql_crossJoin(pre):
 
 
 
-#Hace el parse_rename del json obtenido de la librería mo_sql_parsing  NO de la nuestra
-def parse_rename(sql):
-    if not isinstance(sql["from"], dict):
-        name = sql["from"]
-        for e in sql["select"]:
-            str = e["value"]
-            pos = str.find(".")
-            if pos == -1:
-                e["value"] = name + "." + str
-            else:
-                e["value"] = name + str[pos:]
-        
-        if "where" in sql:
-            if "and" in sql["where"]:
-                for i in range(len(sql["where"]["and"])):
-                    for j in range(len(sql["where"]["and"][i]["eq"])):
-                         if not isinstance(sql["where"]["and"][i]["eq"][j], dict):
-                            pos = sql["where"]["and"][i]["eq"][j].find(".")
-                            if pos == -1:
-                                sql["where"]["and"][i]["eq"][j] = name + "." + str
-                            else:
-                                sql["where"]["and"][i]["eq"][j] = name + str[pos:]
-            else:
-                for i in range(len(sql["where"]["eq"])):
-                        if not isinstance(sql["where"]["eq"][i], dict):
-                            pos = sql["where"]["eq"][i].find(".")
-                            if pos == -1:
-                                sql["where"]["eq"][i] = name + "." + str
-                            else:
-                                sql["where"]["eq"][i] = name + str[pos:]
-    return sql
-                            
 
-
-print(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X'"))
-print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X'")))
-print(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND CIF = '133X'"))
-print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND CIF = '133X'")))
 
 
                     

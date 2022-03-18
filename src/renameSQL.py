@@ -13,6 +13,9 @@ def rename_json(json, creates):
     #renombro las columnas del select
     json = rename_select(json, tables_from, creates)
 
+    #renombro las columnas de where
+    json = rename_where(json, tables_from, creates)
+
     return json
 
 def check_tables(tables, name, prerename=None):
@@ -81,38 +84,101 @@ def rename_select(json, tables, creates):
     if isinstance(select, list):
         aux = []
         for e in select:
-            aux.append({'value': check_colum(e['value'], tables, creates)})
+            aux.append({'value': check_colum(e['value'], tables, creates, True)})
         json['select'] = aux
 
     else:
-        json['select'] = {'value': check_colum(select['value'], tables, creates)}
+        json['select'] = {'value': check_colum(select['value'], tables, creates, True)}
     return json
 
 
+def rename_where(json, tables, creates):
+    if 'where' in json.keys():
+        whe = json['where']
+
+        if 'and' in whe.keys():
+            an = whe['and']
+            aux1=[]
+            for e in an:
+                aux = []
+                for i in e['eq']:
+                    if isinstance(i,str): 
+                        aux.append(check_colum(i, tables, creates, False))
+                    else:
+                        aux.append(i)
+                aux1.append({'eq': aux})
+            json['where']['and'] = aux1
+        else:
+            eq = whe['eq']
+            aux = []
+            for e in eq:
+                if isinstance(e,str): 
+                    aux.append(check_colum(e, tables, creates, False))
+            json['where'] = {'eq': aux}
+    return json
+
 #recibo el nombre de una columna y lo renombro
-def check_colum(colum, tables, creates):
+def check_colum(colum, tables, creates, exc):
     ret = ''
     if colum.find('.') != -1:
-        colum_re = check_pre_rename(colum[0:colum.find('.')], tables)
+        colum_re = check_pre_rename(tables,colum[0:colum.find('.')], None)
         if len(colum_re) > 0 and len(colum_re) <2:
             ret = (colum_re[0][2]+colum[colum.find('.'):])
         else:
             raise ErrorRenameSQL('ERROR: no concuerda con el renombramiento de ninguna tabla')
     else:
-        None
+        colums_creates = check_creates(colum, creates)
+        if len(colums_creates) == 0 and exc:
+            raise ErrorRenameSQL('ERROR: no coincide la columna a proyectar con ninguna de las tablas de From')
+        elif len(colums_creates) > 1 and exc:
+            raise ErrorRenameSQL('ERROR: consulta ambigua')
+        else:
+            colum_re = check_pre_rename(tables, None, colums_creates[0])     
+            if len(colum_re) != 1 and exc:
+                raise ErrorRenameSQL('ERROR: consulta ambigua')
+            else:
+                ret = (colum_re[0][2]+'.'+colum)
     return ret
 
 #si tiene parseo -> chequeo que concuerde y lo cambio (si no concuerda expecion)
 #si no tiene parseo -> compruebo los creates (si devuelve mas de uno en list excepcion- > si devuelve uno pero hay mas de dos tablas en tables excepcion)
 
 
-#Chequeo si concuerda el renombramiento con los existentes en las tablas de FROM
-def check_pre_rename(prerename, tables):
+#Chequeo si concuerda el renombramiento con los existentes en las tablas de FROM o el nombre de la tabla coincidente
+def check_pre_rename(tables, prerename= None, prename=None):
     ret = []
-    for e in tables:
-        if prerename == e[1]:
-            ret.append(e)
+    if prerename:
+        for e in tables:
+            if prerename == e[1]:
+                ret.append(e)
+
+    if prename:
+        for e in tables:
+            if prename == e[0]:
+                ret.append(e)
     return ret
+
+
+#compruebo las columnas con las setencias creates
+def check_creates(colum, creates):
+    ret = []
+    for e in creates:
+        columns_e = e['columns']
+        if isinstance(columns_e, list):
+            for i in columns_e:
+                if colum == i['name']:
+                    ret.append(e['name'])
+                    break
+        else:
+            if colum == columns_e['name']:
+                ret.append(e['name'])
+    return ret
+
+
+
+#print(create_tables_json(["create table Jugador(nombre varchar2(30) primary key, dni varchar(10));", "create table Persona(nom varchar2(30) primary key, dni varchar(10));" ]))
+
+#print(check_creates('nombre', create_tables_json(["create table Jugador(nombre varchar2(30) primary key, dni varchar(10));", "create table Persona(nom varchar2(30) primary key, dni varchar(10));" ])))
 
 
 
@@ -123,11 +189,51 @@ def check_pre_rename(prerename, tables):
 #print(create_tables_json(["create table vuelo(flno number(4,0) primary key, origen varchar2(20), destino varchar2(20), distancia number(6,0), salida date, llegada date, precio number(7,2));", "create table avion(aid number(9,0) primary key, nombre varchar2(30), autonomia number(6,0));"]))
 #print(parse("SELECT nombre FROM Jugador j join pepe p  WHERE nombre = aid and nombre = 'pepe'"))
 
-print(parse("SELECT p.nombre, j.nombre FROM Jugador j join persona p"))
+#print(parse("SELECT p.nombre, j.nombre FROM Jugador j join persona p"))
+#print(rename_json(parse("SELECT p.nombre,j.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
 
-print(rename_json(parse("SELECT p.nombre,j.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
-#print(rename_from(parse("SELECT nombre FROM Jugador j join persona p"), None))
 
+
+# TEST CASES:
 
 #Debe lanzar una excepcion por utilizar el mismo renoombramiento para dos tablas
 #print(rename_from(parse("SELECT nombre FROM Jugador j join persona p"), None))
+
+
+
+#OK
+#print(parse("SELECT p.nombre FROM Jugador j join persona p"))
+#print(rename_json(parse("SELECT p.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
+
+
+#OK
+#print(parse("SELECT p.nombre, j.nombre FROM Jugador j join persona p"))
+#print(rename_json(parse("SELECT p.nombre,j.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
+
+
+
+#OK
+#print(parse("SELECT nombre FROM Jugador  join persona "))
+#print(rename_json(parse("SELECT nombre FROM Jugador  join persona "), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(dni varchar2(30) primary key);" ])))
+
+
+#OK
+#print(parse("SELECT nombre FROM Jugador  join persona "))
+#print(rename_json(parse("SELECT nombre, dni FROM Jugador  join persona "), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(dni varchar2(30) primary key);" ])))
+
+
+#excepcion consulta ambigua
+#print(parse("SELECT nombre FROM Jugador  join persona "))
+#print(rename_json(parse("SELECT nombre, dni FROM Jugador  join persona "), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
+
+
+#ok
+#print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre"))
+#print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
+
+
+#ok
+print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"))
+print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
+
+
