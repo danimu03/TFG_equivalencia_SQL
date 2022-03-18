@@ -1,5 +1,5 @@
 from mo_sql_parsing import parse
-
+from Creates_To_JSON.Creates_Json import *
 
 class ErrorRenameSQL(ValueError):
     def __init__(self, message, *args):         
@@ -7,13 +7,17 @@ class ErrorRenameSQL(ValueError):
 
 def rename_json(json, creates):
     #objengo una lista con las tablas de la proyeccion
-    tables_from = rename_from(json, creates) 
+    tables_from = extract_from(json, creates) 
 
     #renombro las columnas del select
     json = rename_select(json, tables_from, creates)
 
     #renombro las columnas de where
     json = rename_where(json, tables_from, creates)
+
+    #renombro el from
+
+    json = rename_from(json, tables_from)
 
     return json
 
@@ -26,7 +30,7 @@ def check_tables(tables, name, prerename=None):
             raise ErrorRenameSQL('ERROR: mismo renombramiento para dos tablas')
     return ret
 
-def rename_from(json, tables):
+def extract_from(json, tables):
     frm = json['from']
     tables = []
     if isinstance(frm, dict):
@@ -71,6 +75,37 @@ def rename_from(json, tables):
         tables.append(aux)
 
     return tables
+
+
+
+def rename_from(json, tables):
+    print(tables)
+    if isinstance(json['from'], str):
+        aux = {}
+        aux['value'] = json['from']
+        aux['name'] = tables[0][2]
+        json['from'] = aux
+    elif isinstance(json['from'], dict):
+        json['from']['name'] = tables[0][2]
+    elif isinstance(json['from'], list):
+        print(tables)
+        for i in range(len(json['from'])):
+            if isinstance(json['from'][i], str):
+                aux = {}
+                aux['value'] = json['from'][i]
+                aux['name'] = tables[i][2]
+                json['from'][i] = aux
+            elif isinstance(json['from'][i], dict) and 'join' in json['from'][i].keys():
+                aux = {}
+                aux['value'] = json['from'][i]['join']['value']
+                aux['name'] = tables[i][2]
+                json['from'][i]['join'] = aux
+            elif isinstance(json['from'][i], dict) and 'value' in json['from'][i].keys():
+                aux = {}
+                aux['value'] = json['from'][i]['value']
+                aux['name'] = tables[i][2]
+                json['from'][i] = aux
+    return json
 
 
 
@@ -196,7 +231,7 @@ def check_creates(colum, creates):
 # TEST CASES:
 
 #Debe lanzar una excepcion por utilizar el mismo renoombramiento para dos tablas
-#print(rename_from(parse("SELECT nombre FROM Jugador j join persona p"), None))
+#print(extract_from(parse("SELECT nombre FROM Jugador j join persona p"), None))
 
 
 
@@ -234,5 +269,4 @@ def check_creates(colum, creates):
 #ok
 #print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"))
 #print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
-
 
