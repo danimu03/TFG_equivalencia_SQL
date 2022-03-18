@@ -315,9 +315,8 @@ print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND 
 #json = parse("SELECT Nombre, Ap1, Ap2 FROM Empl, Empl2 JOIN Proyecto ON Dni = DniDir")
 #print(checkKeys(json, supportSQL))
 
-print(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X'"))
-print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X'")))
-print(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND CIF = '133X'"))
-print(parse_rename(parse("SELECT Nombre, fecha FROM Club WHERE CIF = '123X' AND CIF = '133X'")))
 
 
+
+print(parse("SELECT nombre FROM jugador as j join pepe as jose"))
+print(parse("CREATE TABLE Jugador (DNI INT PRIMARY KEY,Nombre VARCHAR(25),CIF INT REFERENCES Club(CIF))"))

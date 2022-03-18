@@ -1,6 +1,6 @@
-import src.Rules_AR.rulesAR as rulesAR
-import src.SQL_To_JSON.Sql_To_Json as sqlJSON
-import src.Creates_To_JSON.Creates_Json as createsJSON
+import Rules_AR.rulesAR as rulesAR
+import SQL_To_JSON.Sql_To_Json as sqlJSON
+import Creates_To_JSON.Creates_Json as createsJSON
 
 def equivalence(query_sql1,query_sql2, query_ddl=None):
     try:
