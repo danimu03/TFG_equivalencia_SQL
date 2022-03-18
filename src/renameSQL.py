@@ -79,7 +79,11 @@ def rename_select(json, tables, creates):
     select = json['select']
 
     if isinstance(select, list):
-        None
+        aux = []
+        for e in select:
+            aux.append({'value': check_colum(e['value'], tables, creates)})
+        json['select'] = aux
+
     else:
         json['select'] = {'value': check_colum(select['value'], tables, creates)}
     return json
@@ -89,7 +93,7 @@ def rename_select(json, tables, creates):
 def check_colum(colum, tables, creates):
     ret = ''
     if colum.find('.') != -1:
-        colum_re = check_rename(colum[0:colum.find('.')], tables)
+        colum_re = check_pre_rename(colum[0:colum.find('.')], tables)
         if len(colum_re) > 0 and len(colum_re) <2:
             ret = (colum_re[0][2]+colum[colum.find('.'):])
         else:
@@ -103,7 +107,7 @@ def check_colum(colum, tables, creates):
 
 
 #Chequeo si concuerda el renombramiento con los existentes en las tablas de FROM
-def check_rename(prerename, tables):
+def check_pre_rename(prerename, tables):
     ret = []
     for e in tables:
         if prerename == e[1]:
@@ -119,9 +123,9 @@ def check_rename(prerename, tables):
 #print(create_tables_json(["create table vuelo(flno number(4,0) primary key, origen varchar2(20), destino varchar2(20), distancia number(6,0), salida date, llegada date, precio number(7,2));", "create table avion(aid number(9,0) primary key, nombre varchar2(30), autonomia number(6,0));"]))
 #print(parse("SELECT nombre FROM Jugador j join pepe p  WHERE nombre = aid and nombre = 'pepe'"))
 
-print(parse("SELECT nombre FROM Jugador j join persona p"))
+print(parse("SELECT p.nombre, j.nombre FROM Jugador j join persona p"))
 
-print(rename_json(parse("SELECT p.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
+print(rename_json(parse("SELECT p.nombre,j.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
 #print(rename_from(parse("SELECT nombre FROM Jugador j join persona p"), None))
 
 
