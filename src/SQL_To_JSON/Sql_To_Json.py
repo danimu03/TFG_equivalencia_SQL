@@ -1,8 +1,5 @@
-
 from mo_sql_parsing import parse
 from renameSQL import rename_json
-from Creates_To_JSON.Creates_Json import create_tables_json
-
 
 class ErrorSqlQuery(ValueError):
     def __init__(self, message, *args):         
@@ -35,14 +32,12 @@ def parse_Sql_To_Json(sql):
     :param sql: SQL query
     :return: dict with the query transformed to relational algebra according to the definitions created
     """
-    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join")
+    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join", "name")
     try:
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
-
-        #parsear creates
-        creates = ''
-        previousJson = rename_json(previousJson,creates)
+        #creates=''
+        #previousJson = rename_json(previousJson,creates)
         return parse_Sql_Json(previousJson)
     except Exception as e:
         # print(e) #para pruebas locales
@@ -155,7 +150,13 @@ def sql_from(previousJson):
     else:
         json = {}
         json["type"] = "rel"
-        json["table"] = value
+        if isinstance(value, dict):
+            aux = {}
+            aux['type'] = "rho"
+            aux['ren'] = [value['value'], value['name']]
+            json["table"] = aux #check
+        else: 
+            json["table"] = value #check
         return json
 
 def sql_pro_or_join(values):
@@ -187,7 +188,7 @@ def sql_join(value):
 
     lreljson = {}
     lreljson["type"] = "rel"
-    lreljson["table"] = sql_join_dict(value[0])
+    lreljson["table"] = sql_join_dict(value[0]) #check
     json["lrel"] = lreljson
     del value[0]
 
@@ -196,7 +197,7 @@ def sql_join(value):
     else:
         rreljson = {}
         rreljson["type"] = "rel"
-        rreljson["table"] = sql_join_dict(value[0])
+        rreljson["table"] = sql_join_dict(value[0]) #check
         del value[0]
         json["rrel"] = rreljson
     return json
@@ -209,10 +210,21 @@ def sql_join_dict(value):
     :return: a single element if we are done or the next Join
     """
     
-    if isinstance(value, dict):
-        return value["join"]
+    if isinstance(value, dict) and "join" in value.keys():
+        if isinstance(value["join"], dict):
+            ret = {}
+            ret['type'] = "rho"
+            ret['ren'] = [value["join"]['value'], value["join"]['name']]
+        else:
+            ret = value["join"]
+    elif isinstance(value, dict):
+        ret = {}
+        ret['type'] = "rho"
+        ret['ren'] = [value['value'], value['name']]
     else:
-        return value
+        ret = value
+    
+    return ret
     
 
 def sql_pro(value):
@@ -227,7 +239,7 @@ def sql_pro(value):
 
     lreljson = {}
     lreljson["type"] = "rel"
-    lreljson["table"] = sql_crossJoin(value[0])
+    lreljson["table"] = sql_crossJoin(value[0]) #check
     json["lrel"] = lreljson
     del value[0]
 
@@ -237,7 +249,7 @@ def sql_pro(value):
     else:
         rreljson = {}
         rreljson["type"] = "rel"
-        rreljson["table"] = sql_crossJoin(value[0])
+        rreljson["table"] = sql_crossJoin(value[0]) #check
         del value[0]
         json["rrel"] = rreljson
     return json
@@ -250,10 +262,22 @@ def sql_crossJoin(pre):
     :param pre: list of elements to transform or a single element
     :return: a single element if we are done or the next cartesian product
     """
-    if isinstance(pre, dict):
-        return pre["cross join"]
+    if isinstance(pre, dict) and "cross join" in pre.keys():
+        if isinstance(pre["cross join"], dict):
+            ret = {}
+            ret['type'] = "rho"
+            ret['ren'] = [pre["cross join"]['value'], pre["cross join"]['name']]
+        else:
+            ret = pre["cross join"]
+    elif isinstance(pre, dict):
+            ret = {}
+            ret['type'] = "rho"
+            ret['ren'] = [pre['value'], pre['name']]
     else:
-        return pre 
+        ret = pre
+    
+    return ret
+
 
 
 
@@ -269,7 +293,8 @@ def sql_crossJoin(pre):
 
 #print(parse("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
 #print(parse("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
+#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario as u CROSS JOIN persona as p  CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
+#print(parse("SELECT Nombre, direccion FROM usuario as u  CROSS JOIN persona as p CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
 #print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
 #print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1 GROUP BY name"))
 #print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona"))
@@ -278,7 +303,8 @@ def sql_crossJoin(pre):
 
 #print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
 
-
+print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario as u"))
+print(parse("SELECT Nombre, direccion FROM usuario as u "))
     
 
 #supportSQL = ("select", "from", "join", "on", "eq")
@@ -288,5 +314,5 @@ def sql_crossJoin(pre):
 
 
 
-print(parse("SELECT nombre FROM jugador as j join pepe as jose"))
-print(parse("CREATE TABLE Jugador (DNI INT PRIMARY KEY,Nombre VARCHAR(25),CIF INT REFERENCES Club(CIF))"))
+#print(parse("SELECT nombre FROM jugador as j join pepe as jose"))
+#print(parse("CREATE TABLE Jugador (DNI INT PRIMARY KEY,Nombre VARCHAR(25),CIF INT REFERENCES Club(CIF))"))

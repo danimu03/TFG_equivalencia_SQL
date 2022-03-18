@@ -1,5 +1,4 @@
 from mo_sql_parsing import parse
-from Creates_To_JSON.Creates_Json import create_tables_json
 
 
 class ErrorRenameSQL(ValueError):
@@ -233,7 +232,7 @@ def check_creates(colum, creates):
 
 
 #ok
-print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"))
-print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
+#print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"))
+#print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
 
 
