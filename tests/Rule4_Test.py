@@ -40,7 +40,7 @@ class TestRule4(unittest.TestCase):
                        }
         expected = {'type': 'sigma',
                     'cond': {"type": "eq",
-                             "values": ["sexo", "hombre"]
+                             "values": ["hombre", "sexo"]
                             },
                     'rel': {'type': 'pi',
                             'proj': ['nombre', 'edad', 'sexo'],

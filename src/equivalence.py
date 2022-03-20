@@ -1,8 +1,9 @@
-import Rules_AR.rulesAR as rulesAR
-import SQL_To_JSON.Sql_To_Json as sqlJSON
-import Creates_To_JSON.Creates_Json as createsJSON
+import src.Rules_AR.rulesAR as rulesAR
+import src.SQL_To_JSON.Sql_To_Json as sqlJSON
+import src.Creates_To_JSON.Creates_Json as createsJSON
 
 def equivalence(query_sql1,query_sql2, query_ddl=None):
+    soluciones = ['Equivalentes', 'No sabemos']
     try:
         #obtenemos el json de la primera consulta
         json1 = sqlJSON.parse_Sql_To_Json(query_sql1)
@@ -13,11 +14,11 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
         if query_ddl != None:
             creates = createsJSON.create_tables_json(query_ddl)
         else:
-            creates = null
+            creates = None
 
         # TODO: llamada que calcule la equivalencia de las dos consultas
-        json1rulesApplied = applyRules(json1, creates, false)
-        json2rulesApplied = applyRules(json2, creates, false)
+        json1rulesApplied = applyRules(json1, creates, False)
+        json2rulesApplied = applyRules(json2, creates, False)
         # parametros: json1, json2, creates
 
         if json1rulesApplied.equals(json2rulesApplied):
@@ -28,53 +29,62 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
         print(e)
 
 
-    return soluciones[x]
+    return soluciones[0]
 
 
-def applyRules(json, creates, *esFinal):
+def applyRules(json, creates, esFinal):
     jsonResultado = {}
     if json['type'] == 'sigma':
         if 'type' in json['rel']:
-            applyRules(json['rel'], creates, *esFinal)
-            if esFinal:
+            applyRules(json['rel'], creates, esFinal)
+            if esFinal[0]:
                 if json['rel']['type'] == 'sigma':
                     #aplicamos regla 2, 1
                     jsonResultado = rulesAR.rule2(json)
                     jsonResultado = rulesAR.rule1(jsonResultado)
                 elif json['rel']['type'] == 'pro':
                     #aplicamos la regla 5a
-                    jsonResultado = rulesAR.rule5a(json)
+                    jsonResultado = rulesAR.rule5A(json)
                 elif json['rel']['type'] == 'join':
                     #aplicamos la regla 5b
-                    jsonResultado = rulesAR.rule5b(json)
+                    jsonResultado = rulesAR.rule5B(json)
+                else:
+                    jsonResultado = json
         else:
-            esFinal = true
+            esFinal[0] = True
+            jsonResultado = json
     elif json['type'] == 'pi':
         if 'type' in json['rel']:
-            applyRules(json['rel'], creates, *esFinal)
-            if esFinal:
+            applyRules(json['rel'], creates, esFinal)
+            if esFinal[0]:
                 if json['rel']['type'] == 'sigma':
                     #aplicamos regla 4
                     jsonResultado=rulesAR.rule4(json)
+                    esFinal[0] = False
                 elif json['rel']['type'] == 'pi':
                     #aplicamos la regla 3
                     jsonResultado=rulesAR.rule3(json)
                 elif json['rel']['type'] == 'join':
                     #¿Se puede aplicar la regla 11B?
-                    if ['rel']['rrel']['type'] == 'pi' and ['rel']['lrel']['type'] == 'pi':
-                        jsonResultado=rulesAR.rule11b(json)
+                    if json['rel']['rrel']['type'] == 'pi' and json['rel']['lrel']['type'] == 'pi':
+                        jsonResultado=rulesAR.rule11B(json)
+                else:
+                    jsonResultado = json
         else:
-            esFinal = true
+            esFinal[0] = True
+            jsonResultado = json
     elif json['type'] == 'pro':
         #6 8a 9a 9b
-        leftJson = false
-        rightJson = false
+        leftJson = False
+        rightJson = False
         if 'type' in json['lrel']:
-            applyRules(json['lrel'], creates, *esFinal)
-            leftJson = true
+            applied = applyRules(json['rel'], creates, esFinal)
+            json['rel'] = applied
+            leftJson = True
         if 'type' in json['rrel']:
-            applyRules(json['lrel'], creates, *esFinal)
-            rightJson = true
+            applied = applyRules(json['rel'], creates, esFinal)
+            json['rel'] = applied
+            rightJson = True
 
         #aplicamos las reglas
         if leftJson == False and rightJson == False:
@@ -83,24 +93,26 @@ def applyRules(json, creates, *esFinal):
         elif leftJson == True and rightJson == False:
             if json['type']['lrel'] == 'pro':
                 #aplicamos regla 8a
-                jsonResultado.rulesAR.rule8a(json)
+                jsonResultado.rulesAR.rule8A(json)
             elif json['type']['lrel'] == 'sigma':
                 #aplicamos la regla 9a
-                jsonResultado.rulesAR.rule9a(json)
+                jsonResultado.rulesAR.rule9A(json)
         elif leftJson == True and rightJson == True:
                 #¿Aplicamos la regla 9b?
                 if json['type']['lrel'] == 'sigma' and json['type']['rrel'] == 'sigma':
                     jsonResultado.rulesAR.rule9b(json)
     elif json['type'] == 'join':
         #7 8b 10a 10b 11a
-        leftJson = false
-        rightJson = false
+        leftJson = False
+        rightJson = False
         if 'type' in json['lrel']:
-            applyRules(json['lrel'], creates, *esFinal)
-            leftJson = true
+            applied = applyRules(json['rel'], creates, esFinal)
+            json['rel'] = applied
+            leftJson = True
         if 'type' in json['rrel']:
-            applyRules(json['lrel'], creates, *esFinal)
-            rightJson = true
+            applied = applyRules(json['rel'], creates, esFinal)
+            json['rel'] = applied
+            rightJson = True
 
             # aplicamos las reglas
             if leftJson == False and rightJson == False:
@@ -115,11 +127,13 @@ def applyRules(json, creates, *esFinal):
                     jsonResultado.rulesAR.rule10a(json)
             elif leftJson == True and rightJson == True:
                 # ¿Aplicamos la regla 10b?
-                if json['type']['lrel'] == 'sigma' and json['type']['rrel'] == 'sigma':
+                if json['lrel']['type'] == 'sigma' and json['rrel']['type'] == 'sigma':
                     jsonResultado.rulesAR.rule10b(json)
                 # ¿Aplicamos la regla 11a?
-                elif json['type']['lrel'] == 'pi' and json['type']['rrel'] == 'pi':
+                elif json['lrel']['type'] == 'pi' and json['rrel']['type'] == 'pi':
                     jsonResultado.rulesAR.rule11a(json)
 
+    if esFinal[0] == True:
+        jsonResultado = json
 
     return jsonResultado

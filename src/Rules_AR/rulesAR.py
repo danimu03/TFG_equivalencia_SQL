@@ -106,6 +106,8 @@ def rule4(jsonSQL):
     valuesSigma = jsonSQL['rel']
     relation = jsonSQL['rel']['rel']
 
+    if 'values' in valuesSigma['cond']:
+        valuesSigma['cond']['values'].sort()
     jsonSQL = valuesSigma
     jsonSQL['rel'] = valuesPi
     jsonSQL['rel']['rel'] = relation
@@ -168,6 +170,115 @@ def rule7(jsonSQL):
     jsonSQL['rrel'] = left
     jsonSQL['lrel'] = right
     return jsonSQL
+
+def rule8A(jsonSQL):
+
+    left_left = jsonSQL['lrel']['lrel']
+    left_right = jsonSQL['lrel']['rrel']
+    right = jsonSQL['rrel']
+    aux = jsonSQL['lrel']
+
+    jsonSQL['lrel'] = left_left
+    jsonSQL['rrel'] = aux
+    jsonSQL['rrel']['lrel'] = left_right
+    jsonSQL['rrel']['rrel'] = right
+    return jsonSQL
+
+#TODO
+def rule8B(jsonSQL):
+
+    left_left = jsonSQL['lrel']['lrel   ']
+    left_right = jsonSQL['lrel']['rrel']
+    right = jsonSQL['rrel']
+
+    json = {"type": "join",
+            "cond": {},
+            "lrel": "",
+            "rrel": ""
+            }
+    #hay un and en el primer cond (FALTA COMPROBAR EL RESTO DE CONDS)
+    if 'type' in jsonSQL['cond'] and jsonSQL['cond']['type'] == 'and':
+        '''cond'''
+        values_cond = jsonSQL['cond']['values']
+        values_left_first = jsonSQL['lrel']['cond']['values'][0]
+        values_left_second = jsonSQL['lrel']['cond']['values'][1]
+        values_cond.append(values_left_second)
+        '''lrel = left_left'''
+        '''rrel'''
+        json_right = { "type": "join",
+             "cond": {},
+             "lrel": "",
+             "rrel": ""
+        }
+        json_right['cond'] = values_left_first
+        json_right['lrel'] = left_right
+        json_right['rrel'] = right
+        '''resultado'''
+        json['cond'] = { "type": "and",
+                         "values": values_cond
+        }
+        json['lrel'] = left_left
+        json['rrel'] = json_right
+    else:
+        cond = jsonSQL['cond']
+        left_cond = jsonSQL['lrel']['cond']
+        aux = jsonSQL['lrel']
+        aux_values = jsonSQL['lrel']['cond']['values'][0]
+
+        jsonSQL['cond']['values'][0] = cond
+        jsonSQL['cond'] = left_cond
+        jsonSQL['rrel']['cond'] = aux_values
+        jsonSQL['lrel'] = left_left
+        jsonSQL['rrel'] = aux
+        jsonSQL['rrel']['lrel'] = left_right
+        jsonSQL['rrel']['rrel'] = right
+        json = jsonSQL
+
+    return json
+
+''''def rule8B(jsonSQL):
+
+    cond = jsonSQL['cond']
+    left_cond = jsonSQL['lrel']['cond']
+    left_left = jsonSQL['lrel']['lrel']
+    left_right = jsonSQL['lrel']['rrel']
+    right = jsonSQL['rrel']
+    aux = jsonSQL['lrel']
+    aux_values = jsonSQL['lrel']['cond']['values'][0]
+
+    if 'type' in cond and cond['type'] == 'and':
+        newCond = cond['values']
+        finalValues = left_cond['values']
+        for i in newCond:
+            finalValues.append(i)
+        jsonAnd = {"type": "and",
+                   "values": finalValues
+                   }
+    else:
+        jsonSQL['cond']['values'][0] = cond
+        jsonSQL['cond'] = left_cond
+        jsonSQL['rrel']['cond'] = aux_values
+
+    jsonSQL['lrel'] = left_left
+    jsonSQL['rrel'] = aux
+    jsonSQL['rrel']['lrel'] = left_right
+    jsonSQL['rrel']['rrel'] = right
+    return jsonSQL'''''
+
+def rule9A(jsonSQL):
+
+    valuesLeft = jsonSQL['lrel']
+    valuesRigth = jsonSQL['rrel']
+    tableLeft = valuesLeft['rel']
+
+    valuesLeft['rel'] = valuesRigth
+    jsonSQL['lrel'] = tableLeft
+    jsonSQL['rrel'] = valuesLeft
+
+    return jsonSQL
+
+
+
 
 if __name__ == '__main__':
     jsonSQL = {}
