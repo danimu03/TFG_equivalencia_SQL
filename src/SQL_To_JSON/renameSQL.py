@@ -1,5 +1,5 @@
 from mo_sql_parsing import parse
-from Creates_To_JSON.Creates_Json import *
+from src.Creates_To_JSON.Creates_Json import *
 
 class ErrorRenameSQL(ValueError):
     def __init__(self, message, *args):         
@@ -79,7 +79,7 @@ def extract_from(json, tables):
 
 
 def rename_from(json, tables):
-    print(tables)
+    # print(tables)
     if isinstance(json['from'], str):
         aux = {}
         aux['value'] = json['from']
@@ -88,7 +88,7 @@ def rename_from(json, tables):
     elif isinstance(json['from'], dict):
         json['from']['name'] = tables[0][2]
     elif isinstance(json['from'], list):
-        print(tables)
+        # print(tables)
         for i in range(len(json['from'])):
             if isinstance(json['from'][i], str):
                 aux = {}
@@ -233,11 +233,11 @@ def check_creates(colum, creates):
 #Debe lanzar una excepcion por utilizar el mismo renoombramiento para dos tablas
 #print(extract_from(parse("SELECT nombre FROM Jugador j join persona p"), None))
 
-
+#print(rename_json(parse("SELECT Persona.nombre FROM Persona, Jugador"), create_tables_json(["create table Persona(nombre varchar2(30) primary key);","create table Jugador(nombre varchar2(30) primary key);"])))
 
 #OK
 #print(parse("SELECT p.nombre FROM Jugador j join persona p"))
-#print(rename_json(parse("SELECT p.nombre FROM Jugador j join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
+#print(rename_json(parse("SELECT p.nombre FROM Jugador p join persona p"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
 
 
 #OK
@@ -269,4 +269,3 @@ def check_creates(colum, creates):
 #ok
 #print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"))
 #print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
-
