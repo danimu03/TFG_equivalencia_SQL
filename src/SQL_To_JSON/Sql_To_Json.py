@@ -24,20 +24,21 @@ def checkKeys(json, support):
 
     return True
 
-
-def parse_Sql_To_Json(sql):
+# DEBE RECIBIR:
+# JSON A PARSEAR
+# Sentencia de creacion de tablas PARSEADAS -> create_tables_json(creates)
+def parse_Sql_To_Json(sql, creates):
     """
     Parses a SQL query to JSON
 
     :param sql: SQL query
     :return: dict with the query transformed to relational algebra according to the definitions created
     """
-    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join", "name")
+    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join", "name","literal")
     try:
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
-        #creates=''
-        #previousJson = rename_json(previousJson,creates)
+        previousJson = rename_json(previousJson,creates)
         return parse_Sql_Json(previousJson)
     except Exception as e:
         # print(e) #para pruebas locales
@@ -115,7 +116,13 @@ def sql_eq(previousJson):
     """
     json = {}
     json["type"] = "eq"
-    json["values"] = previousJson["eq"]
+    values = []
+    for i in previousJson["eq"]:
+        if isinstance(i,dict):
+            values.append(i['literal'])
+        else:
+            values.append(i)    
+    json["values"] = values
     return json
 
 
@@ -303,8 +310,8 @@ def sql_crossJoin(pre):
 
 #print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
 
-print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario as u"))
-print(parse("SELECT Nombre, direccion FROM usuario as u "))
+print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario as u where Nombre = 'pepe'"))
+print(parse("SELECT Nombre, direccion FROM usuario as u where Nombre = 'pepe'"))
     
 
 #supportSQL = ("select", "from", "join", "on", "eq")

@@ -30,6 +30,10 @@ def check_tables(tables, name, prerename=None):
             raise ErrorRenameSQL('ERROR: mismo renombramiento para dos tablas')
     return ret
 
+
+#e[0] -> nombre de la tabla
+#e[1] -> pre-renombramiento
+#e[2] -> nuestro renombramiento     
 def extract_from(json, tables):
     frm = json['from']
     tables = []
@@ -79,7 +83,6 @@ def extract_from(json, tables):
 
 
 def rename_from(json, tables):
-    # print(tables)
     if isinstance(json['from'], str):
         aux = {}
         aux['value'] = json['from']
@@ -88,7 +91,6 @@ def rename_from(json, tables):
     elif isinstance(json['from'], dict):
         json['from']['name'] = tables[0][2]
     elif isinstance(json['from'], list):
-        # print(tables)
         for i in range(len(json['from'])):
             if isinstance(json['from'][i], str):
                 aux = {}
@@ -96,10 +98,16 @@ def rename_from(json, tables):
                 aux['name'] = tables[i][2]
                 json['from'][i] = aux
             elif isinstance(json['from'][i], dict) and 'join' in json['from'][i].keys():
-                aux = {}
-                aux['value'] = json['from'][i]['join']['value']
-                aux['name'] = tables[i][2]
-                json['from'][i]['join'] = aux
+                if isinstance(json['from'][i]['join'],dict):
+                    aux = {}
+                    aux['value'] = json['from'][i]['join']['value']
+                    aux['name'] = tables[i][2]
+                    json['from'][i]['join'] = aux
+                else:
+                    aux = {}
+                    aux['value'] = json['from'][i]['join']
+                    aux['name'] = tables[i][2]
+                    json['from'][i]['join'] = aux
             elif isinstance(json['from'][i], dict) and 'value' in json['from'][i].keys():
                 aux = {}
                 aux['value'] = json['from'][i]['value']
@@ -118,11 +126,11 @@ def rename_select(json, tables, creates):
     if isinstance(select, list):
         aux = []
         for e in select:
-            aux.append({'value': check_colum(e['value'], tables, creates, True)})
+            aux.append({'value': check_colum(e['value'], tables, creates)})
         json['select'] = aux
 
     else:
-        json['select'] = {'value': check_colum(select['value'], tables, creates, True)}
+        json['select'] = {'value': check_colum(select['value'], tables, creates)}
     return json
 
 
@@ -137,7 +145,7 @@ def rename_where(json, tables, creates):
                 aux = []
                 for i in e['eq']:
                     if isinstance(i,str): 
-                        aux.append(check_colum(i, tables, creates, False))
+                        aux.append(check_colum(i, tables, creates))
                     else:
                         aux.append(i)
                 aux1.append({'eq': aux})
@@ -147,30 +155,39 @@ def rename_where(json, tables, creates):
             aux = []
             for e in eq:
                 if isinstance(e,str): 
-                    aux.append(check_colum(e, tables, creates, False))
+                    aux.append(check_colum(e, tables, creates))
+                else:
+                    aux.append(e)
             json['where'] = {'eq': aux}
     return json
 
 #recibo el nombre de una columna y lo renombro
-def check_colum(colum, tables, creates, exc):
+def check_colum(colum, tables, creates):
     ret = ''
     if colum.find('.') != -1:
+        #está renombrada
         colum_re = check_pre_rename(tables,colum[0:colum.find('.')], None)
         if len(colum_re) > 0 and len(colum_re) <2:
             ret = (colum_re[0][2]+colum[colum.find('.'):])
         else:
             raise ErrorRenameSQL('ERROR: no concuerda con el renombramiento de ninguna tabla')
     else:
+        #no está renombrada
         colums_creates = check_creates(colum, creates)
-        if len(colums_creates) == 0 and exc:
+        #chequeo la columna con los crates
+        if len(colums_creates) == 0:
+            #no coincide con ninguna
             raise ErrorRenameSQL('ERROR: no coincide la columna a proyectar con ninguna de las tablas de From')
-        elif len(colums_creates) > 1 and exc:
+        elif len(colums_creates) > 1:
+            #coincide con mas de una
             raise ErrorRenameSQL('ERROR: consulta ambigua')
         else:
-            colum_re = check_pre_rename(tables, None, colums_creates[0])     
-            if len(colum_re) != 1 and exc:
+            colum_re = check_pre_rename(tables, None, colums_creates[0])
+            #compruebo si la tabla con la que coincide aparece mas de una vez en el join     
+            if len(colum_re) != 1:
                 raise ErrorRenameSQL('ERROR: consulta ambigua')
             else:
+                #correcto
                 ret = (colum_re[0][2]+'.'+colum)
     return ret
 
@@ -183,8 +200,9 @@ def check_pre_rename(tables, prerename= None, prename=None):
     ret = []
     if prerename:
         for e in tables:
-            if prerename == e[1]:
+            if prerename == e[1] or prerename == e[0] :
                 ret.append(e)
+              
 
     if prename:
         for e in tables:
@@ -267,5 +285,5 @@ def check_creates(colum, creates):
 
 
 #ok
-#print(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"))
-#print(rename_json(parse("SELECT j.nombre FROM Jugador j  join persona p Where j.nombre = p.nombre and j.nombre = 1231"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ])))
+#print(parse("SELECT Jugador.nombre FROM Jugador   join persona Where Jugador.nombre = persona.nombre and Jugador.nombre = 'pepe'"))
+#print(rename_json(parse("SELECT Jugador.nombre FROM Jugador  join persona  Where nombre = namee and nombre = 'pepe'"), create_tables_json(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(namee varchar2(30),dni varchar2(30) primary key);" ])))
