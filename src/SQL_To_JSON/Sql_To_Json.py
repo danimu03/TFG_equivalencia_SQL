@@ -1,5 +1,6 @@
 from mo_sql_parsing import parse
-from renameSQL import rename_json
+from src.SQL_To_JSON.renameSQL import rename_json
+from src.Creates_To_JSON.Creates_Json import create_tables_json as create
 
 class ErrorSqlQuery(ValueError):
     def __init__(self, message, *args):         
@@ -34,7 +35,7 @@ def parse_Sql_To_Json(sql, creates):
     :param sql: SQL query
     :return: dict with the query transformed to relational algebra according to the definitions created
     """
-    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join", "name","literal")
+    supportSQL = ("select", "from", "join", "on", "eq", "where", "and", "value", "cross join", "name", "literal")
     try:
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
@@ -88,7 +89,7 @@ def sql_select(previousJson):
     json["type"] = "pi"
     json["proj"] = values
     del previousJson["select"]
-    json["rel"] =  parse_Sql_Json(previousJson)
+    json["rel"] = parse_Sql_Json(previousJson)
     return json
 
 def sql_and(previousJson):
@@ -177,8 +178,8 @@ def sql_pro_or_join(values):
         if isinstance(i, dict):
             if "join" in i.keys():
                 return sql_join(values)
-            else:
-                return sql_pro(values)
+            #else:
+                #return sql_pro(values)
     return sql_pro(values)
 
 def sql_join(value):
@@ -310,16 +311,52 @@ def sql_crossJoin(pre):
 
 #print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
 
-print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario as u where Nombre = 'pepe'"))
-print(parse("SELECT Nombre, direccion FROM usuario as u where Nombre = 'pepe'"))
-    
+#print(parse_Sql_To_Json("SELECT u.flno, u.origen FROM vuelo as u where flno = '4658'", create(["create table vuelo(flno number(4,0) primary key, origen varchar2(20), destino varchar2(20), distancia number(6,0), salida date, llegada date, precio number(7,2));"])))
+#print(parse("SELECT Nombre, direccion FROM usuario as u where Nombre = 'pepe'"))
+
+#print(parse_Sql_To_Json("SELECT p.nombre FROM Jugador j join Persona p on nombre = nombre", create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);"])))
 
 #supportSQL = ("select", "from", "join", "on", "eq")
 #json = parse("SELECT Nombre, Ap1, Ap2 FROM Empl, Empl2 JOIN Proyecto ON Dni = DniDir")
 #print(checkKeys(json, supportSQL))
 
-
-
-
 #print(parse("SELECT nombre FROM jugador as j join pepe as jose"))
 #print(parse("CREATE TABLE Jugador (DNI INT PRIMARY KEY,Nombre VARCHAR(25),CIF INT REFERENCES Club(CIF))"))
+
+
+#print(parse("SELECT nombre FROM Persona, Jugador"))
+#print(parse("SELECT nombre FROM Persona join Jugador on nombre = nombre"))
+#print(parse_Sql_Json(parse("SELECT nombre FROM Persona join Jugador on nombre = nombre")))
+#print(rename_json(parse("SELECT p.nombre FROM Jugador j join Persona p on nombre = nombre"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
+#print(parse_Sql_Json(rename_json(parse("SELECT p.nombre FROM Jugador j join Persona p on p.nombre = j.nombre"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ]))))
+
+#print(parse("SELECT nombre FROM Persona where id = '1'"))
+#print(parse("SELECT nombre FROM Persona join Jugador on nombre = nombre where id ='1'"))
+
+#d = {'from': ['Persona', {'join': 'Jugador', 'on': {'eq': ['nombre', 'nombre']}}]}
+#for i in range(len(d['from'])):
+#   print(d['from'][i])
+#   if isinstance(d['from'][i], str):
+#       print("string")
+#   elif isinstance(d['from'][i], dict):
+#       print("dict")
+
+#print(create(["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+#            "ap1 VARCHAR(10),"
+#           "ap2 VARCHAR(10),"
+#          "edad INT(3),"
+#         "telefono INT(9),"
+#        "pais VARCHAR(10));",
+#      "CREATE TABLE Empr (nombre VARCHAR(20) PRIMARY KEY);"]))
+
+#print(parse("SELECT nombre FROM Persona WHERE pais = \"España\" AND nombre = \"A\""))
+print(parse_Sql_To_Json("SELECT nombre, id, dep FROM Persona, Empr, Dep", create([
+            "CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+             "ap1 VARCHAR(10),"
+             "ap2 VARCHAR(10),"
+             "edad INT(3),"
+             "telefono INT(9),"
+             "pais VARCHAR(10));",
+            "CREATE TABLE Empr (id INT(2) PRIMARY KEY);",
+            "CREATE TABLE Dep (dep INT(10) PRIMARY KEY);"
+             ])))

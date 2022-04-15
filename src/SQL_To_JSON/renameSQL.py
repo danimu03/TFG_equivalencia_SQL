@@ -143,21 +143,25 @@ def rename_where(json, tables, creates):
             aux1=[]
             for e in an:
                 aux = []
-                for i in e['eq']:
-                    if isinstance(i,str): 
-                        aux.append(check_colum(i, tables, creates))
-                    else:
-                        aux.append(i)
+#               for i in e['eq']:
+#                   if isinstance(i,str):
+#                       aux.append(check_colum(i, tables, creates))
+#                    else:
+#                        aux.append(i)
+                aux.append(check_colum(e['eq'][0], tables, creates))
+                aux.append(e['eq'][1])
                 aux1.append({'eq': aux})
             json['where']['and'] = aux1
         else:
             eq = whe['eq']
             aux = []
-            for e in eq:
-                if isinstance(e,str): 
-                    aux.append(check_colum(e, tables, creates))
-                else:
-                    aux.append(e)
+#            for e in eq:
+#                if isinstance(e,str):
+#                    aux.append(check_colum(e, tables, creates))
+#                else:
+#                    aux.append(e)
+            aux.append(check_colum(eq[0], tables, creates))
+            aux.append(eq[1])
             json['where'] = {'eq': aux}
     return json
 

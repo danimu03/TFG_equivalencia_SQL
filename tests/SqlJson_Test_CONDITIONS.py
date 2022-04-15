@@ -1,5 +1,6 @@
 import unittest
-import src.SQL_To_JSON.Sql_To_Json as sqlJSON
+from src.SQL_To_JSON.Sql_To_Json import parse_Sql_To_Json as sql
+from src.Creates_To_JSON.Creates_Json import create_tables_json as create
 
 class SqlJson_Test_CONDITIONS(unittest.TestCase):
     """
@@ -30,15 +31,24 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Pais = \"España\"
         """
 
-        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\"")
-        expected = {"type": "pi",
-                    "proj": ["Nombre"],
-                    "rel": {"type": "sigma",
-                            "cond": {"type": "eq",
-                                     "values": ["Pais", "España"]
+        res = sql("SELECT nombre FROM Persona WHERE pais = \"España\"", create(
+            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+             "ap1 VARCHAR(10),"
+             "ap2 VARCHAR(10),"
+             "edad INT(3),"
+             "telefono INT(9),"
+             "pais VARCHAR(10));"
+             ]))
+        expected = {'type': 'pi',
+                    'proj': ['Persona1.nombre'],
+                    'rel': {'type': 'sigma',
+                            'cond': {'type': 'eq',
+                                     'values': ['Persona1.pais', 'España']
                                      },
-                            "rel": {"type": "rel",
-                                    "table": "Persona"
+                            'rel': {'type': 'rel',
+                                    'table': {'type': 'rho',
+                                              'ren': ['Persona', 'Persona1']
+                                              }
                                     }
                             }
                     }
@@ -51,15 +61,23 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Telefono = 12345"
         """
 
-        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Telefono = 12345")
-        expected = {"type": "pi",
-                    "proj": ["Nombre"],
-                    "rel": {"type": "sigma",
-                            "cond": {"type": "eq",
-                                     "values": ["Telefono", 12345]
-                                     },
-                            "rel": {"type": "rel",
-                                    "table": "Persona"
+        res = sql("SELECT nombre FROM Persona WHERE telefono = 12345", create(
+            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+             "ap1 VARCHAR(10),"
+             "ap2 VARCHAR(10),"
+             "edad INT(3),"
+             "telefono INT(9),"
+             "pais VARCHAR(10));"
+             ]))
+        expected = {'type': 'pi',
+                    'proj': ['Persona1.nombre'],
+                    'rel': {'type': 'sigma',
+                            'cond': {'type': 'eq',
+                                     'values': ['Persona1.telefono', 12345]},
+                            'rel': {'type': 'rel',
+                                    'table': {'type': 'rho',
+                                              'ren': ['Persona', 'Persona1']
+                                              }
                                     }
                             }
                     }
@@ -72,21 +90,33 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345
         """
 
-        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345")
-        expected = {"type": "pi",
-                    "proj": ["Nombre"],
-                    "rel": {"type": "sigma",
-                            "cond": {"type": "and",
-                                     "values": [{"type": "eq",
-                                                 "values": ["Pais", "España"]},
-                                                {"type": "eq",
-                                                 "values": ["Telefono", 12345]}]
+        res = sql("SELECT nombre FROM Persona WHERE pais = \"España\" AND telefono = 12345", create(
+            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+             "ap1 VARCHAR(10),"
+             "ap2 VARCHAR(10),"
+             "edad INT(3),"
+             "telefono INT(9),"
+             "pais VARCHAR(10));"
+             ]))
+        expected = {'type': 'pi',
+                    'proj': ['Persona1.nombre'],
+                    'rel': {'type': 'sigma',
+                            'cond': {'type': 'and',
+                                     'values': [{'type': 'eq',
+                                                 'values': ['Persona1.pais', 'España']
+                                                 },
+                                                {'type': 'eq',
+                                                 'values': ['Persona1.telefono', 12345]
+                                                 }]
                                      },
-                            "rel": {"type": "rel",
-                                    "table": "Persona"
+                            'rel': {'type': 'rel',
+                                    'table': {'type': 'rho',
+                                              'ren': ['Persona', 'Persona1']
+                                              }
                                     }
                             }
                     }
+
         self.assertEqual(res, expected)
 
     def test_ANDThreeEquals(self):
@@ -96,23 +126,36 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"
         """
 
-        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"")
-        expected = {"type": "pi",
-                    "proj": ["Nombre"],
-                    "rel": {"type": "sigma",
-                            "cond": {"type": "and",
-                                     "values": [{"type": "eq",
-                                                 "values": ["Pais", "España"]},
-                                                {"type": "eq",
-                                                 "values": ["Telefono", 12345]},
-                                                 {"type": "eq",
-                                                  "values": ["Id", "IS1452"]}]
+        res = sql("SELECT nombre FROM Persona WHERE pais = \"España\" AND telefono = 12345 AND edad = 26", create(
+            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+             "ap1 VARCHAR(10),"
+             "ap2 VARCHAR(10),"
+             "edad INT(3),"
+             "telefono INT(9),"
+             "pais VARCHAR(10));"
+             ]))
+        expected = {'type': 'pi',
+                    'proj': ['Persona1.nombre'],
+                    'rel': {'type': 'sigma',
+                            'cond': {'type': 'and',
+                                     'values': [{'type': 'eq',
+                                                 'values': ['Persona1.pais', 'España']
+                                                 },
+                                                {'type': 'eq',
+                                                 'values': ['Persona1.telefono', 12345]
+                                                 },
+                                                {'type': 'eq',
+                                                 'values': ['Persona1.edad', 26]
+                                                 }]
                                      },
-                            "rel": {"type": "rel",
-                                    "table": "Persona"
+                            'rel': {'type': 'rel',
+                                    'table': {'type': 'rho',
+                                              'ren': ['Persona', 'Persona1']
+                                              }
                                     }
                             }
                     }
+
         self.assertEqual(res, expected)
 
     def test_ANDandVariousSelects(self):
@@ -122,23 +165,36 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"
         """
 
-        res = sqlJSON.parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"")
-        expected = {"type": "pi",
-                    "proj": ["Nombre", "Edad"],
-                    "rel": {"type": "sigma",
-                            "cond": {"type": "and",
-                                     "values": [{"type": "eq",
-                                                 "values": ["Pais", "España"]},
-                                                {"type": "eq",
-                                                 "values": ["Telefono", 12345]},
-                                                 {"type": "eq",
-                                                  "values": ["Id", "IS1452"]}]
+        res = sql("SELECT nombre, edad FROM Persona WHERE pais = \"España\" AND telefono = 12345 AND edad = 26", create(
+            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+             "ap1 VARCHAR(10),"
+             "ap2 VARCHAR(10),"
+             "edad INT(3),"
+             "telefono INT(9),"
+             "pais VARCHAR(10));"
+             ]))
+        expected = {'type': 'pi',
+                    'proj': ['Persona1.nombre',
+                             'Persona1.edad'],
+                    'rel': {'type': 'sigma',
+                            'cond': {'type': 'and',
+                                     'values': [{'type': 'eq',
+                                                 'values': ['Persona1.pais', 'España']
+                                                 }, {'type': 'eq',
+                                                     'values': ['Persona1.telefono', 12345]
+                                                     },
+                                                {'type': 'eq',
+                                                 'values': ['Persona1.edad', 26]
+                                                 }]
                                      },
-                            "rel": {"type": "rel",
-                                    "table": "Persona"
+                            'rel': {'type': 'rel',
+                                    'table': {'type': 'rho',
+                                              'ren': ['Persona', 'Persona1']
+                                              }
                                     }
                             }
                     }
+
         self.assertEqual(res, expected)
 
 if __name__ == "__main__":
