@@ -31,7 +31,7 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Pais = \"España\"
         """
 
-        res = sql("SELECT nombre FROM Persona WHERE pais = \"España\"", create(
+        res = sql("SELECT nombre FROM Persona WHERE pais = 'España'", create(
             ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
              "ap1 VARCHAR(10),"
              "ap2 VARCHAR(10),"
@@ -90,7 +90,7 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345
         """
 
-        res = sql("SELECT nombre FROM Persona WHERE pais = \"España\" AND telefono = 12345", create(
+        res = sql("SELECT nombre FROM Persona WHERE pais = 'España' AND telefono = 12345", create(
             ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
              "ap1 VARCHAR(10),"
              "ap2 VARCHAR(10),"
@@ -126,7 +126,7 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"
         """
 
-        res = sql("SELECT nombre FROM Persona WHERE pais = \"España\" AND telefono = 12345 AND edad = 26", create(
+        res = sql("SELECT nombre FROM Persona WHERE pais = 'España' AND telefono = 12345 AND edad = 26", create(
             ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
              "ap1 VARCHAR(10),"
              "ap2 VARCHAR(10),"
@@ -165,7 +165,7 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
         Original query:  SELECT Nombre, Edad FROM Persona WHERE Pais = \"España\" AND Telefono = 12345 AND Id = \"IS1452\"
         """
 
-        res = sql("SELECT nombre, edad FROM Persona WHERE pais = \"España\" AND telefono = 12345 AND edad = 26", create(
+        res = sql("SELECT nombre, edad FROM Persona WHERE pais = 'España' AND telefono = 12345 AND edad = 26", create(
             ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
              "ap1 VARCHAR(10),"
              "ap2 VARCHAR(10),"

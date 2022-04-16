@@ -40,20 +40,19 @@ class Rename_Test(unittest.TestCase):
 
         self.assertEqual(res, expected)
 
-    def test_pj(self): #falla el renombramiento del JOIN
-        res = sql("SELECT p.nombre FROM Jugador j join Persona p on nombre = nombre", create(
-            ["create table Jugador(nombre varchar2(30) primary key);",
-             "create table Persona(nombre varchar2(30) primary key);"]
+    def test_asP(self):
+        res = sql("SELECT P.nombre FROM Persona as P", create(
+            ["create table Persona(nombre varchar2(30) primary key);"]
         ))
 
-        expected = ""
+        expected = {'type': 'pi', 'proj': ['Persona1.nombre'], 'rel': {'type': 'rel', 'table': {'type': 'rho', 'ren': ['Persona', 'Persona1']}}}
 
         self.assertEqual(res, expected)
 
     def test_sameRename(self):
         self.assertRaises(ren.ErrorRenameSQL, ren.rename_json, parse("SELECT p.nombre FROM Jugador p join persona p"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ]))
 
-    def test_ambColumn(self): #esta realmente no es de renombramiento
+    def test_ambColumn(self):
         self.assertRaises(ren.ErrorRenameSQL, ren.rename_json, parse("SELECT nombre, dni FROM Jugador  join persona "), create(["create table Jugador(nombre varchar2(30) primary key);", "create table persona(nombre varchar2(30),dni varchar2(30) primary key);" ]))
 
 

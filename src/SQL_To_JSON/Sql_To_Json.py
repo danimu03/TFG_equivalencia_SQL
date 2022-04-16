@@ -192,7 +192,8 @@ def sql_join(value):
     json = {}
     json["type"] = "join"
     valueJoin = value[1]
-    json["cond"] = sql_eq(valueJoin["on"])
+    json["cond"] = parse_Sql_Json(valueJoin["on"])
+
 
     lreljson = {}
     lreljson["type"] = "rel"
@@ -330,33 +331,37 @@ def sql_crossJoin(pre):
 #print(rename_json(parse("SELECT p.nombre FROM Jugador j join Persona p on nombre = nombre"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
 #print(parse_Sql_Json(rename_json(parse("SELECT p.nombre FROM Jugador j join Persona p on p.nombre = j.nombre"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ]))))
 
-#print(parse("SELECT nombre FROM Persona where id = '1'"))
-#print(parse("SELECT nombre FROM Persona join Jugador on nombre = nombre where id ='1'"))
+#print(rename_json(parse("SELECT nombre FROM Persona where id = 1 and nombre = 'A'"), create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
+#                                                                                                     "create table Jugador(pid int(2) primary key);"])))
+#print(parse_Sql_To_Json("SELECT nombre FROM Persona where id = 1 and nombre = 'A'", create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
+#                                                                                                     "create table Jugador(pid int(2) primary key);"])))
+#
+#print(rename_json(parse("SELECT nombre FROM Persona join Jugador on id = pid"), create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
+#                                                                                                     "create table Jugador(pid int(2) primary key);"])))
+#print(parse_Sql_To_Json("SELECT nombre FROM Persona JOIN Jugador ON Persona.id = Jugador.id JOIN Equipo ON Jugador.eid = Equipo.id",
+#                        create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
+#                                "create table Jugador(id int(2) primary key, eid int(2));",
+#                                "create table Equipo(id int(2) primary key)"])))
 
-#d = {'from': ['Persona', {'join': 'Jugador', 'on': {'eq': ['nombre', 'nombre']}}]}
-#for i in range(len(d['from'])):
-#   print(d['from'][i])
-#   if isinstance(d['from'][i], str):
-#       print("string")
-#   elif isinstance(d['from'][i], dict):
-#       print("dict")
+#print(parse_Sql_To_Json("SELECT p.nombre FROM Persona as p", create(["create table Persona(nombre varchar2(30) primary key);"])))
 
-#print(create(["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
-#            "ap1 VARCHAR(10),"
-#           "ap2 VARCHAR(10),"
-#          "edad INT(3),"
-#         "telefono INT(9),"
-#        "pais VARCHAR(10));",
-#      "CREATE TABLE Empr (nombre VARCHAR(20) PRIMARY KEY);"]))
+#print(parse("SELECT nombre FROM Persona where nombre = 'A'"))
+#print(rename_json(parse("SELECT nombre FROM Persona where nombre = id"), create(["create table Persona(id int(2) primary key, nombre varchar2(30));"])))
+#print(parse("SELECT nombre FROM Persona WHERE pais = 'España'"))
+#print(rename_json(parse("SELECT nombre FROM Persona WHERE pais = 'España'"), create(
+#            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+#             "ap1 VARCHAR(10),"
+#             "ap2 VARCHAR(10),"
+#             "edad INT(3),"
+#             "telefono INT(9),"
+#             "pais VARCHAR(10));"
+#             ])))
+#print(parse_Sql_To_Json("SELECT nombre FROM Persona WHERE pais = 'España'", create(
+#            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
+#             "ap1 VARCHAR(10),"
+#             "ap2 VARCHAR(10),"
+#             "edad INT(3),"
+#             "telefono INT(9),"
+#             "pais VARCHAR(10));"
+#             ])))
 
-#print(parse("SELECT nombre FROM Persona WHERE pais = \"España\" AND nombre = \"A\""))
-print(parse_Sql_To_Json("SELECT nombre, id, dep FROM Persona, Empr, Dep", create([
-            "CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
-             "ap1 VARCHAR(10),"
-             "ap2 VARCHAR(10),"
-             "edad INT(3),"
-             "telefono INT(9),"
-             "pais VARCHAR(10));",
-            "CREATE TABLE Empr (id INT(2) PRIMARY KEY);",
-            "CREATE TABLE Dep (dep INT(10) PRIMARY KEY);"
-             ])))

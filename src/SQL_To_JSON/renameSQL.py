@@ -17,7 +17,7 @@ def rename_json(json, creates):
 
     #renombro el from
 
-    json = rename_from(json, tables_from)
+    json = rename_from(json, tables_from, creates)
 
     return json
 
@@ -82,7 +82,7 @@ def extract_from(json, tables):
 
 
 
-def rename_from(json, tables):
+def rename_from(json, tables, creates):
     if isinstance(json['from'], str):
         aux = {}
         aux['value'] = json['from']
@@ -108,6 +108,14 @@ def rename_from(json, tables):
                     aux['value'] = json['from'][i]['join']
                     aux['name'] = tables[i][2]
                     json['from'][i]['join'] = aux
+
+                aux2={}
+                on = json['from'][i]['on']
+                if 'and' in on.keys():
+                    json['from'][i]['on']['and'] = rename_and(on['and'], tables, creates)
+                else:
+                    json['from'][i]['on'] = rename_eq(on['eq'], tables, creates)
+
             elif isinstance(json['from'][i], dict) and 'value' in json['from'][i].keys():
                 aux = {}
                 aux['value'] = json['from'][i]['value']
@@ -134,35 +142,35 @@ def rename_select(json, tables, creates):
     return json
 
 
+def rename_and(json, tables, creates):
+    aux1 = []
+    for e in json:
+        aux = []
+        for i in e['eq']:
+            if isinstance(i, str):
+                aux.append(check_colum(i, tables, creates))
+            else:
+                aux.append(i)
+        aux1.append({'eq': aux})
+    return aux1
+
+def rename_eq(json, tables, creates):
+    aux = []
+    for e in json:
+        if isinstance(e, str):
+            aux.append(check_colum(e, tables, creates))
+        else:
+            aux.append(e)
+    return {'eq': aux}
+
 def rename_where(json, tables, creates):
     if 'where' in json.keys():
         whe = json['where']
 
         if 'and' in whe.keys():
-            an = whe['and']
-            aux1=[]
-            for e in an:
-                aux = []
-#               for i in e['eq']:
-#                   if isinstance(i,str):
-#                       aux.append(check_colum(i, tables, creates))
-#                    else:
-#                        aux.append(i)
-                aux.append(check_colum(e['eq'][0], tables, creates))
-                aux.append(e['eq'][1])
-                aux1.append({'eq': aux})
-            json['where']['and'] = aux1
+            json['where']['and'] = rename_and(whe['and'], tables, creates)
         else:
-            eq = whe['eq']
-            aux = []
-#            for e in eq:
-#                if isinstance(e,str):
-#                    aux.append(check_colum(e, tables, creates))
-#                else:
-#                    aux.append(e)
-            aux.append(check_colum(eq[0], tables, creates))
-            aux.append(eq[1])
-            json['where'] = {'eq': aux}
+            json['where'] = rename_eq(whe['eq'], tables, creates)
     return json
 
 #recibo el nombre de una columna y lo renombro
