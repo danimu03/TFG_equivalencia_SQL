@@ -1,5 +1,6 @@
 import unittest
 from src.SQL_To_JSON.Sql_To_Json import parse_Sql_To_Json as sql
+from src.SQL_To_JSON.Sql_To_Json import ErrorSqlQuery as errsql
 from src.Creates_To_JSON.Creates_Json import create_tables_json as create
 
 class SqlJson_Test_SELECT(unittest.TestCase):
@@ -74,6 +75,12 @@ class SqlJson_Test_SELECT(unittest.TestCase):
                             }
                     }
         self.assertEqual(res, expected)
+
+    def test_groupby(self):
+        self.assertRaises(errsql, sql,"SELECT count(id), pais FROM Usuario GROUP BY pais", create(
+            ["create table Usuario(id int(2) primary key, pais varchar(20))"]
+        ))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 import unittest
 import src.SQL_To_JSON.Sql_To_Json as sqlJSON
 
+# Eliminarla
 class TestSqlJson(unittest.TestCase):
 
     # def test_one(self):

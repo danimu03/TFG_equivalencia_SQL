@@ -1,5 +1,6 @@
 import unittest
 from src.SQL_To_JSON.Sql_To_Json import parse_Sql_To_Json as sql
+from src.SQL_To_JSON.Sql_To_Json import ErrorSqlQuery as errsql
 from src.Creates_To_JSON.Creates_Json import create_tables_json as create
 
 class SqlJson_Test_CONDITIONS(unittest.TestCase):
@@ -196,6 +197,25 @@ class SqlJson_Test_CONDITIONS(unittest.TestCase):
                     }
 
         self.assertEqual(res, expected)
+
+    def test_neq(self):
+        self.assertRaises(errsql, sql, "SELECT nombre, direccion FROM Usuario WHERE pais != 'España'", create(["create table Usuario(id int(2) primary key, nombre varchar(20), direccion varchar(30), pais varchar(10))"]))
+
+    def test_lt(self):
+        self.assertRaises(errsql, sql, "SELECT nombre, direccion FROM Usuario WHERE id < 3456", create(["create table Usuario(id int(2) primary key, nombre varchar(20), direccion varchar(30), pais varchar(10))"]))
+
+    def test_gt(self):
+        self.assertRaises(errsql, sql, "SELECT nombre, direccion FROM Usuario WHERE id < 3456", create(["create table Usuario(id int(2) primary key, nombre varchar(20), direccion varchar(30), pais varchar(10))"]))
+
+    def test_lte(self):
+        self.assertRaises(errsql, sql, "SELECT nombre, direccion FROM Usuario WHERE id <= 3456", create(["create table Usuario(id int(2) primary key, nombre varchar(20), direccion varchar(30), pais varchar(10))"]))
+
+    def test_gte(self):
+        self.assertRaises(errsql, sql, "SELECT nombre, direccion FROM Usuario WHERE pais >= 'España'", create(["create table Usuario(id int(2) primary key, nombre varchar(20), direccion varchar(30), pais varchar(10))"]))
+
+    def test_or(self):
+        self.assertRaises(errsql, sql, "SELECT nombre, direccion FROM Usuario WHERE pais = 'España' OR id = 1", create(["create table Usuario(id int(2) primary key, nombre varchar(20), direccion varchar(30), pais varchar(10))"]))
+
 
 if __name__ == "__main__":
     unittest.main()
