@@ -60,35 +60,24 @@ def rule2(jsonSQL):
     valuesArriba = jsonSQL['cond']['values']
     valuesAbajo = jsonSQL['rel']['cond']['values']
 
-    '''
+
     if jsonSQL['cond']['type'] == 'and':
         numValuesUp = len(valuesArriba)
-    else:'''
-    # ordenamos los valuesArriba
-    tipo1 = str(type(valuesArriba[0]))
-    tipo2 = str(type(valuesArriba[1]))
-    if tipo1 == tipo2:
-        valuesArriba.sort()
+        for n in jsonSQL['cond']['values']:
+            valuesCopia = n['values']
+            sort_pair(valuesCopia)
     else:
-        if tipo2 < tipo1:
-            aux = valuesArriba[0]
-            valuesArriba[0] = valuesArriba[1]
-            valuesArriba[1] = aux
+        # ordenamos los valuesArriba
+        sort_pair(valuesArriba)
 
-    '''
     if jsonSQL['rel']['cond']['type'] == 'and':
         numValuesDown = len(valuesAbajo)
-    else:'''
-    # ordenamos los valuesAbajo
-    tipo1 = str(type(valuesAbajo[0]))
-    tipo2 = str(type(valuesAbajo[1]))
-    if tipo1 == tipo2:
-        valuesAbajo.sort()
+        for n in jsonSQL['rel']['cond']['values']:
+            valuesCopia = n['values']
+            sort_pair(valuesCopia)
     else:
-        if tipo2 < tipo1:
-            aux = valuesAbajo[0]
-            valuesAbajo[0] = valuesAbajo[1]
-            valuesAbajo[1] = aux
+    # ordenamos los valuesAbajo
+        sort_pair(valuesAbajo)
 
     jsonSQL['cond']['values'] = valuesArriba
     jsonSQL['rel']['cond']['values'] = valuesAbajo
@@ -100,14 +89,18 @@ def rule2(jsonSQL):
         valuesOrdenados = sorted([valuesUpOrdenados, valuesDownOrdenados], key=functools.cmp_to_key(compare_values))
         jsonSQL['cond'] = valuesOrdenados[0]
         jsonSQL['rel']['cond'] = valuesOrdenados[1]
-    '''
-    ------ Cuando hay algún and -------
     else:
         valuesAux = []
-        for n in valuesUpOrdenados:
-            valuesAux.append(n)
-        for n in valuesDownOrdenados:
-            valuesAux.append(n)
+        if numValuesUp > 1:
+            for n in valuesUpOrdenados['values']:
+                valuesAux.append(n)
+        else:
+            valuesAux.append(valuesUpOrdenados)
+        if numValuesDown > 1:
+            for n in valuesDownOrdenados['values']:
+                valuesAux.append(n)
+        else:
+            valuesAux.append(valuesDownOrdenados)
         valuesOrdenados = sorted(valuesAux, key=functools.cmp_to_key(compare_values))
         i = 0
         if numValuesUp > 1:
@@ -117,6 +110,9 @@ def rule2(jsonSQL):
                 jsonSQL['cond']['values'].append(valuesOrdenados[i])
                 i = i+1
                 j = j+1
+        else:
+            jsonSQL['cond'] = valuesOrdenados[0]
+            i = 1
         if numValuesDown > 1:
             jsonSQL['rel']['cond']['values'] = []
             j = 0
@@ -124,7 +120,7 @@ def rule2(jsonSQL):
                 jsonSQL['rel']['cond']['values'].append(valuesOrdenados[i])
                 i = i+1
                 j = j+1
-                '''
+
 
     return jsonSQL
 
@@ -240,7 +236,8 @@ def rule8B(jsonSQL):
         values_cond.append(values_left_second)
         '''lrel = left_left'''
         '''rrel'''
-        json_right = { "type": "join",
+        json_right = {
+             "type": "join",
              "cond": {},
              "lrel": "",
              "rrel": ""
@@ -367,6 +364,17 @@ def compare_values(json1, json2):
                     return -1
                 else:
                     return 0
+
+def sort_pair(values):
+    tipo1 = str(type(values[0]))
+    tipo2 = str(type(values[1]))
+    if tipo1 == tipo2:
+        values.sort()
+    else:
+        if tipo2 < tipo1:
+            aux = values[0]
+            values[0] = values[1]
+            values[1] = aux
 
 
 

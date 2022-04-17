@@ -14,7 +14,7 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
 
 
         #obtenemos el json de la primera consulta
-        json1 = sqlJSON.parse_Sql_To_Json(query_sql1, creates)
+        json1 = sqlJSON.parse_Sql_To_Json(query_sql1, None)
         #obtenemos el json de la segunda consulta
         json2 = sqlJSON.parse_Sql_To_Json(query_sql2, creates)
 
@@ -153,6 +153,8 @@ def applyRules(json, creates, esFinal):
                     jsonCopia = copy.deepcopy(json)
                     jsonResultado = rulesAR.rule11a(jsonCopia)
                     json = jsonResultado
+    elif json['type'] == 'join':
+        esFinal[0] = True
 
     if esFinal[0] == True:
         jsonResultado = json

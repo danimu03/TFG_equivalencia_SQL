@@ -19,10 +19,13 @@ class TestRule1(unittest.TestCase):
                                      "values" : ["España", "Pais"]},
                              "rel" : "Persona"}
                              }
-        #final1 = [False]
-        #final2 = [False]
+        final1 = [False]
+        final2 = [False]
 
-        resultado = equi.equivalence(query1, query2, query_ddl=None)
+        res1 = equi.applyRules(query1, None, final1)
+        res2 = equi.applyRules(query2, None, final2)
+
+        self.assertEqual(res1, res2)
 
 
 
