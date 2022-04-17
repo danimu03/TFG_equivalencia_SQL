@@ -19,13 +19,13 @@ class TestRule1(unittest.TestCase):
                                      "values" : ["España", "Pais"]},
                              "rel" : "Persona"}
                              }
-        final1 =  [False]
-        final2 = [False]
+        #final1 = [False]
+        #final2 = [False]
 
-        res1 = equi.applyRules(query1, None, final1)
-        res2 = equi.applyRules(query2, None, final2)
+        resultado = equi.equivalence(query1, query2, query_ddl=None)
 
-        self.assertEqual(res1, res2)
+
+
 
     '''def test2(self):
         query1 = {"type" : "pi",
@@ -58,7 +58,7 @@ class TestRule1(unittest.TestCase):
 
         self.assertEqual(res1, res2)'''
 
-    '''def test3(self):
+    def test3(self):
         query1 = {"type": "sigma",
                    "cond": {"type": "eq",
                             "values": ["edad", 18]},
@@ -81,13 +81,13 @@ class TestRule1(unittest.TestCase):
                                     },
                            'rel': 'Personas'}
                    }
-        final1 = False
-        final2 = False
+        final1 = [False]
+        final2 = [False]
 
         res1 = equi.applyRules(query1, None, final1)
         res2 = equi.applyRules(query2, None, final2)
 
-        self.assertEqual(res1, res2)'''
+        self.assertEqual(res1, res2)
 
 
     '''def test4(self):

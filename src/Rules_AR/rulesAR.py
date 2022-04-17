@@ -1,6 +1,6 @@
 import json
 from tkinter import E
-
+import functools
 
 def rule1(jsonSQL):
     try:
@@ -54,10 +54,16 @@ def rule2(jsonSQL):
 
     valuesArriba = []
     valuesAbajo = []
+    numValuesUp = 1
+    numValuesDown = 1
 
     valuesArriba = jsonSQL['cond']['values']
     valuesAbajo = jsonSQL['rel']['cond']['values']
 
+    '''
+    if jsonSQL['cond']['type'] == 'and':
+        numValuesUp = len(valuesArriba)
+    else:'''
     # ordenamos los valuesArriba
     tipo1 = str(type(valuesArriba[0]))
     tipo2 = str(type(valuesArriba[1]))
@@ -69,6 +75,10 @@ def rule2(jsonSQL):
             valuesArriba[0] = valuesArriba[1]
             valuesArriba[1] = aux
 
+    '''
+    if jsonSQL['rel']['cond']['type'] == 'and':
+        numValuesDown = len(valuesAbajo)
+    else:'''
     # ordenamos los valuesAbajo
     tipo1 = str(type(valuesAbajo[0]))
     tipo2 = str(type(valuesAbajo[1]))
@@ -80,16 +90,41 @@ def rule2(jsonSQL):
             valuesAbajo[0] = valuesAbajo[1]
             valuesAbajo[1] = aux
 
-    tipo1 = str(type(valuesArriba[0]))
-    tipo2 = str(type(valuesAbajo[0]))
-    if tipo1 == tipo2:
-        if valuesAbajo[0] < valuesArriba[0]:
-            jsonSQL['cond']['values'] = valuesAbajo
-            jsonSQL['rel']['cond']['values'] = valuesArriba
+    jsonSQL['cond']['values'] = valuesArriba
+    jsonSQL['rel']['cond']['values'] = valuesAbajo
+
+    valuesUpOrdenados = jsonSQL['cond']
+    valuesDownOrdenados = jsonSQL['rel']['cond']
+
+    if numValuesUp == 1 and numValuesDown == 1:
+        valuesOrdenados = sorted([valuesUpOrdenados, valuesDownOrdenados], key=functools.cmp_to_key(compare_values))
+        jsonSQL['cond'] = valuesOrdenados[0]
+        jsonSQL['rel']['cond'] = valuesOrdenados[1]
+    '''
+    ------ Cuando hay algún and -------
     else:
-        if tipo2 < tipo1:
-            jsonSQL['cond']['values'] = valuesAbajo
-            jsonSQL['rel']['cond']['values'] = valuesArriba
+        valuesAux = []
+        for n in valuesUpOrdenados:
+            valuesAux.append(n)
+        for n in valuesDownOrdenados:
+            valuesAux.append(n)
+        valuesOrdenados = sorted(valuesAux, key=functools.cmp_to_key(compare_values))
+        i = 0
+        if numValuesUp > 1:
+            jsonSQL['cond']['values'] = []
+            j = 0
+            while j < numValuesUp:
+                jsonSQL['cond']['values'].append(valuesOrdenados[i])
+                i = i+1
+                j = j+1
+        if numValuesDown > 1:
+            jsonSQL['rel']['cond']['values'] = []
+            j = 0
+            while j < numValuesDown:
+                jsonSQL['rel']['cond']['values'].append(valuesOrdenados[i])
+                i = i+1
+                j = j+1
+                '''
 
     return jsonSQL
 
@@ -277,6 +312,61 @@ def rule9A(jsonSQL):
 
     return jsonSQL
 
+def compare_values(json1, json2):
+    # esta función es solo para comparar diccionarios, los pares ya nos vienen ordenados
+
+    values1 = json1['values']
+    values2 = json2['values']
+
+    tipo1 = str(type(values1[0]))
+    tipo2 = str(type(values2[0]))
+
+    if tipo1 == tipo2:
+        if values1[0] > values2[0]:
+            return 1
+        elif values1[0] < values2[0]:
+            return -1
+        else:
+            tipo12 = str(type(values1[1]))
+            tipo22 = str(type(values2[1]))
+
+            if tipo12 == tipo22:
+                if values1[1] > values2[1]:
+                    return 1
+                elif values1[1] < values2[1]:
+                    return -1
+                else:
+                    return 0
+            else:
+                if tipo12 > tipo22:
+                    return 1
+                elif tipo12 < tipo22:
+                    return -1
+                else:
+                    return 0
+    else:
+        if tipo1 > tipo2:
+            return 1
+        elif tipo1 < tipo2:
+            return -1
+        else:
+            tipo12 = str(type(values1[1]))
+            tipo22 = str(type(values2[1]))
+
+            if tipo12 == tipo22:
+                if values1[1] > values2[1]:
+                    return 1
+                elif values1[1] < values2[1]:
+                    return -1
+                else:
+                    return 0
+            else:
+                if tipo12 > tipo22:
+                    return 1
+                elif tipo12 < tipo22:
+                    return -1
+                else:
+                    return 0
 
 
 
