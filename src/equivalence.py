@@ -14,7 +14,7 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
 
 
         #obtenemos el json de la primera consulta
-        json1 = sqlJSON.parse_Sql_To_Json(query_sql1, None)
+        json1 = sqlJSON.parse_Sql_To_Json(query_sql1, creates)
         #obtenemos el json de la segunda consulta
         json2 = sqlJSON.parse_Sql_To_Json(query_sql2, creates)
 
@@ -26,10 +26,16 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
         json2rulesApplied = applyRules(json2, creates, final2)
         # parametros: json1, json2, creates
 
+        while final1[0] == False:
+            json1rulesApplied = applyRules(json1rulesApplied, None, final1)
+
+        while final2[0] == False:
+            json2rulesApplied = applyRules(json2rulesApplied, None, final2)
+
         if json1rulesApplied.equals(json2rulesApplied):
-            return True
+            print(soluciones[0])
         else:
-            return False
+            print(soluciones[1])
     except Exception as e:
         print(e)
 
@@ -42,8 +48,7 @@ def applyRules(json, creates, esFinal):
     if json['type'] == 'sigma':
         if 'type' in json['rel']:
             jsonCopia = copy.deepcopy(json['rel'])
-            applyRules(jsonCopia, creates, esFinal)
-            json['rel'] = jsonCopia
+            json['rel'] = applyRules(jsonCopia, creates, esFinal)
             if esFinal[0]:
                 if json['rel']['type'] == 'sigma':
                     #aplicamos regla 2, 1
@@ -66,7 +71,8 @@ def applyRules(json, creates, esFinal):
             jsonResultado = json
     elif json['type'] == 'pi':
         if 'type' in json['rel']:
-            applyRules(json['rel'], creates, esFinal)
+            jsonCopia = copy.deepcopy(json['rel'])
+            json['rel'] = applyRules(jsonCopia, creates, esFinal)
             if esFinal[0]:
                 if json['rel']['type'] == 'sigma':
                     #aplicamos regla 4
@@ -91,12 +97,12 @@ def applyRules(json, creates, esFinal):
         leftJson = False
         rightJson = False
         if 'type' in json['lrel']:
-            applied = applyRules(json['rel'], creates, esFinal)
-            json['rel'] = applied
+            jsonCopia = copy.deepcopy(json['lrel'])
+            json['lrel'] = applyRules(jsonCopia, creates, esFinal)
             leftJson = True
         if 'type' in json['rrel']:
-            applied = applyRules(json['rel'], creates, esFinal)
-            json['rel'] = applied
+            jsonCopia = copy.deepcopy(json['rrel'])
+            json['rrel'] = applyRules(jsonCopia, creates, esFinal)
             rightJson = True
 
         #aplicamos las reglas
@@ -121,12 +127,12 @@ def applyRules(json, creates, esFinal):
         leftJson = False
         rightJson = False
         if 'type' in json['lrel']:
-            applied = applyRules(json['rel'], creates, esFinal)
-            json['rel'] = applied
+            jsonCopia = copy.deepcopy(json['lrel'])
+            json['lrel'] = applyRules(jsonCopia, creates, esFinal)
             leftJson = True
         if 'type' in json['rrel']:
-            applied = applyRules(json['rel'], creates, esFinal)
-            json['rel'] = applied
+            jsonCopia = copy.deepcopy(json['rrel'])
+            json['rrel'] = applyRules(jsonCopia, creates, esFinal)
             rightJson = True
 
             # aplicamos las reglas
@@ -156,7 +162,7 @@ def applyRules(json, creates, esFinal):
     elif json['type'] == 'join':
         esFinal[0] = True
 
-    if esFinal[0] == True:
+    if not jsonResultado:
         jsonResultado = json
 
     return jsonResultado
