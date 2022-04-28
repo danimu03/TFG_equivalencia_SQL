@@ -3,7 +3,7 @@ import src.Creates_To_JSON.Creates_Json as creates
 import src.Rules_AR.rulesAR as rulesAR
 
 
-class TestRule9B(unittest.TestCase):
+class TestRule10A(unittest.TestCase):
 
     def test_simple1(self):
         jsonExample = {  "type" : "join",

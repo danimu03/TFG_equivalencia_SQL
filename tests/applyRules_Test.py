@@ -1,3 +1,4 @@
+import copy
 import unittest
 import src.equivalence as equi
 
@@ -128,6 +129,38 @@ class TestRule1(unittest.TestCase):
             res2 = equi.applyRules(res2, None, final2)
 
         self.assertEqual(res1, res2)
+
+    def testGetRenames(self):
+        jsonExample = {"type": "join",
+                       "cond": {"type": "eq",
+                                "values": ["vuelo1.origen", "Madrid"]
+                                },
+                       "lrel": {"type": "sigma",
+                                "cond": {"type": "eq",
+                                         "values": ["avion2.nombre", 'VuelosEspaña']
+                                         },
+                                "rel": {'type': 'rel',
+                                        'table': {'type': 'rho',
+                                                  'ren': ['avion', 'avion2']
+                                                  }
+                                        }
+                                },
+                       "rrel": {"type": "sigma",
+                                "cond": {"type": "eq",
+                                         "values": ["avion1.nombre", "Iberia"]
+                                         },
+                                "rel": {'type': 'rel',
+                                        'table': {'type': 'rho',
+                                                  'ren': ['avion', 'avion1']}
+                                        }
+                                }
+                       }
+        renames = []
+        equi.getRenames(jsonExample, renames)
+        renamesFound = []
+        allRenames = equi.groupRenames(renames, renamesFound)
+        print(allRenames)
+
 
 
 

@@ -2,6 +2,7 @@ import src.Rules_AR.rulesAR as rulesAR
 import src.SQL_To_JSON.Sql_To_Json as sqlJSON
 import src.Creates_To_JSON.Creates_Json as createsJSON
 import copy
+import itertools
 
 def equivalence(query_sql1,query_sql2, query_ddl=None):
     soluciones = ['Equivalentes', 'No sabemos']
@@ -166,3 +167,82 @@ def applyRules(json, creates, esFinal):
         jsonResultado = json
 
     return jsonResultado
+
+def getRenames(json, renames):
+    if json['type'] == 'sigma':
+        if 'type' in json['rel'] or json['rel']['type'] != 'rel':
+            getRenames(json['rel'], renames)
+        else:
+            renames.append(json['rel']['table']['ren'])
+    elif json['type'] == 'pi':
+        if 'type' in json['rel'] or json['rel']['type'] != 'rel':
+            getRenames(json['rel'], renames)
+        else:
+            renames.append(json['rel']['table']['ren'])
+    elif json['type'] == 'pro':
+        if 'type' in json['lrel'] or json['lrel']['type'] != 'rel':
+            getRenames(json['lrel'], renames)
+        else:
+            renames.append(json['lrel']['table']['ren'])
+        if 'type' in json['rrel'] or json['rrel']['type'] != 'rel':
+            getRenames(json['rrel'], renames)
+        else:
+            renames.append(json['rrel']['table']['ren'])
+    elif json['type'] == 'join':
+        if 'type' in json['lrel'] or json['lrel']['type'] != 'rel':
+            getRenames(json['lrel'], renames)
+        else:
+            renames.append(json['lrel']['table']['ren'])
+        if 'type' in json['rrel'] or json['rrel']['type'] != 'rel':
+            getRenames(json['rrel'], renames)
+        else:
+            renames.append(json['rrel']['table']['ren'])
+    elif json['type'] == 'rel':
+        renames.append(json['table']['ren'])
+
+
+def getPermutations(renames):
+    return list(itertools.permutations(renames))
+
+def groupRenames(renames, renamesFound):
+    possibleRenames = []
+    for i in renames:
+        actualRenames = []
+        for j in renames:
+            if i != j:
+                if i[0] == j[0] and i[0] not in renamesFound:
+                    if i[1] not in actualRenames:
+                        actualRenames.append(i[1])
+                    if j[1] not in actualRenames:
+                        actualRenames.append(j[1])
+        if len(actualRenames) > 0:
+            renamesFound.append(i[0])
+            possibleRenames.append(actualRenames)
+    return possibleRenames
+
+def doRename(json, renamesFound, allRenames, renameActual):
+    jsonWithAux = copy.deepcopy(json)
+
+
+
+
+'''def putAuxs(json, renamesObtained, allRenames, renameActual):
+    if json['type'] == 'sigma':
+        if 'type' in json['rel'] or json['rel']['type'] != 'rel':
+            putAuxs(json['rel'], renamesObtained)
+    elif json['type'] == 'pi':
+        if 'type' in json['rel'] or json['rel']['type'] != 'rel':
+            putAuxs(json['rel'], renamesObtained)
+    elif json['type'] == 'pro':
+        if 'type' in json['lrel'] or json['lrel']['type'] != 'rel':
+            putAuxs(json['lrel'], renamesObtained)
+        if 'type' in json['rrel'] or json['rrel']['type'] != 'rel':
+            putAuxs(json['rrel'], renamesObtained)
+    elif json['type'] == 'join':
+        if 'type' in json['lrel'] or json['lrel']['type'] != 'rel':
+            putAuxs(json['lrel'], renamesObtained)
+        if 'type' in json['rrel'] or json['rrel']['type'] != 'rel':
+            putAuxs(json['rrel'], renamesObtained)
+    elif json['type'] == 'rel':
+        if allRenames[renameActual] in json['table']['ren']:
+'''

@@ -50,6 +50,7 @@ class TestRule9B(unittest.TestCase):
                                                 "create table avion(aid number(9,0) primary key, nombre varchar2(30), autonomia number(6,0));"])
             res = rulesAR.rule9B(jsonExample, tablas)
             self.assertEqual(res, expected)
+
         except TypeError as e:
             print(e)
             print('He fallado yo: test_simple1')
