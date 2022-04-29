@@ -4,16 +4,12 @@ import src.Creates_To_JSON.Creates_Json as createsJSON
 import copy
 import itertools
 
-def equivalence(query_sql1,query_sql2, query_ddl=None):
+def equivalence(query_sql1,query_sql2, query_ddl):
     soluciones = ['Equivalentes', 'No sabemos']
     try:
-        # si tenemos una sentencia de creacion de tablas, la parseamos tambien
-        if query_ddl != None:
-            creates = createsJSON.create_tables_json(query_ddl)
-        else:
-            creates = None
-
-
+        
+        creates = createsJSON.create_tables_json(query_ddl)
+       
         #obtenemos el json de la primera consulta
         json1 = sqlJSON.parse_Sql_To_Json(query_sql1, creates)
         #obtenemos el json de la segunda consulta

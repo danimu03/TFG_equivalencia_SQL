@@ -2,10 +2,19 @@ from mo_sql_parsing import parse
 from src.Creates_To_JSON.Creates_Json import *
 
 class ErrorRenameSQL(ValueError):
+    """
+    Own exception
+    """
     def __init__(self, message, *args):         
         super(ErrorRenameSQL, self).__init__(message, *args)
 
 def rename_json(json, creates):
+    """
+    Make the re-naming of the tables according to our procedure
+
+    :param pre: JSON without re-naming
+    :return: JSON with re-naming
+    """
     #objengo una lista con las tablas de la proyeccion
     tables_from = extract_from(json, creates) 
 
@@ -22,6 +31,12 @@ def rename_json(json, creates):
     return json
 
 def check_tables(tables, name, prerename=None):
+    """
+    Check if names of the tables are correct
+
+    :param pre: JSON with the DDL create, name to renaming, prerenaming
+    :return: number of renames match
+    """
     ret = 0
     for e in tables:
         if name == e[0]:
@@ -35,6 +50,12 @@ def check_tables(tables, name, prerename=None):
 #e[1] -> pre-renombramiento
 #e[2] -> nuestro renombramiento     
 def extract_from(json, tables):
+    """
+    Extract params to the renaming
+
+    :param pre: 
+    :return: 
+    """
     frm = json['from']
     tables = []
     if isinstance(frm, dict):
@@ -83,6 +104,12 @@ def extract_from(json, tables):
 
 
 def rename_from(json, tables, creates):
+    """
+    perform the renaming of the FROM part
+
+    :param pre: 
+    :return: 
+    """
     if isinstance(json['from'], str):
         aux = {}
         aux['value'] = json['from']
@@ -129,6 +156,12 @@ def rename_from(json, tables, creates):
 #tables -> tables del from
 #create -> sentencias de creacion de tablas
 def rename_select(json, tables, creates):
+    """
+    perform the renaming of the SELECT part
+
+    :param pre: 
+    :return: 
+    """
     select = json['select']
 
     if isinstance(select, list):
@@ -143,6 +176,12 @@ def rename_select(json, tables, creates):
 
 
 def rename_and(json, tables, creates):
+    """
+    perform the renaming of the AND part
+
+    :param pre: 
+    :return: 
+    """
     aux1 = []
     for e in json:
         aux = []
@@ -155,6 +194,12 @@ def rename_and(json, tables, creates):
     return aux1
 
 def rename_eq(json, tables, creates):
+    """
+    perform the renaming of the EQ part
+
+    :param pre: 
+    :return: 
+    """
     aux = []
     for e in json:
         if isinstance(e, str):
@@ -164,6 +209,12 @@ def rename_eq(json, tables, creates):
     return {'eq': aux}
 
 def rename_where(json, tables, creates):
+    """
+    perform the renaming of the WHERE part
+
+    :param pre: 
+    :return: 
+    """
     if 'where' in json.keys():
         whe = json['where']
 
@@ -175,6 +226,12 @@ def rename_where(json, tables, creates):
 
 #recibo el nombre de una columna y lo renombro
 def check_colum(colum, tables, creates):
+    """
+    Function to rename a column
+
+    :param pre: 
+    :return: 
+    """
     ret = ''
     if colum.find('.') != -1:
         #está renombrada
@@ -209,6 +266,12 @@ def check_colum(colum, tables, creates):
 
 #Chequeo si concuerda el renombramiento con los existentes en las tablas de FROM o el nombre de la tabla coincidente
 def check_pre_rename(tables, prerename= None, prename=None):
+    """
+    Check if previous renamings are correct and 
+
+    :param pre: 
+    :return: 
+    """
     ret = []
     if prerename:
         for e in tables:
@@ -225,6 +288,12 @@ def check_pre_rename(tables, prerename= None, prename=None):
 
 #compruebo las columnas con las setencias creates
 def check_creates(colum, creates):
+    """
+    Check the columns of the DDL create
+
+    :param pre: 
+    :return: 
+    """
     ret = []
     for e in creates:
         columns_e = e['columns']

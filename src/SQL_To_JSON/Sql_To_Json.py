@@ -3,6 +3,9 @@ from src.SQL_To_JSON.renameSQL import rename_json
 from src.Creates_To_JSON.Creates_Json import create_tables_json as create
 
 class ErrorSqlQuery(ValueError):
+    """
+    Own exception
+    """
     def __init__(self, message, *args):         
         super(ErrorSqlQuery, self).__init__(message, *args)
 
@@ -288,80 +291,4 @@ def sql_crossJoin(pre):
     return ret
 
 
-
-
-
-
-
-
-
-                    
-
-
-
-
-#print(parse("SELECT Nombre, direccion FROM usuario CROSS JOIN persona CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
-#print(parse("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario as u CROSS JOIN persona as p  CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
-#print(parse("SELECT Nombre, direccion FROM usuario as u  CROSS JOIN persona as p CROSS JOIN movil WHERE pais = \"España\" and num = 1"))
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1"))
-#print(parse_Sql_To_Json("SELECT Nombre, direccion FROM usuario, persona, movil WHERE pais = \"España\" and num = 1 GROUP BY name"))
-#print(parse_Sql_To_Json("SELECT Nombre, Edad FROM Persona"))
-
-#print(parse("SELECT Nombre FROM nombre WHERE pais = \"España\""))
-
-#print(parse("SELECT nombre FROM user JOIN empleado ON dni = dniempleado"))
-
-#print(parse_Sql_To_Json("SELECT u.flno, u.origen FROM vuelo as u where flno = '4658'", create(["create table vuelo(flno number(4,0) primary key, origen varchar2(20), destino varchar2(20), distancia number(6,0), salida date, llegada date, precio number(7,2));"])))
-#print(parse("SELECT Nombre, direccion FROM usuario as u where Nombre = 'pepe'"))
-
-#print(parse_Sql_To_Json("SELECT p.nombre FROM Jugador j join Persona p on nombre = nombre", create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);"])))
-
-#supportSQL = ("select", "from", "join", "on", "eq")
-#json = parse("SELECT Nombre, Ap1, Ap2 FROM Empl, Empl2 JOIN Proyecto ON Dni = DniDir")
-#print(checkKeys(json, supportSQL))
-
-#print(parse("SELECT nombre FROM jugador as j join pepe as jose"))
-#print(parse("CREATE TABLE Jugador (DNI INT PRIMARY KEY,Nombre VARCHAR(25),CIF INT REFERENCES Club(CIF))"))
-
-
-#print(parse("SELECT nombre FROM Persona, Jugador"))
-#print(parse("SELECT nombre FROM Persona join Jugador on nombre = nombre"))
-#print(parse_Sql_Json(parse("SELECT nombre FROM Persona join Jugador on nombre = nombre")))
-#print(rename_json(parse("SELECT p.nombre FROM Jugador j join Persona p on nombre = nombre"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ])))
-#print(parse_Sql_Json(rename_json(parse("SELECT p.nombre FROM Jugador j join Persona p on p.nombre = j.nombre"), create(["create table Jugador(nombre varchar2(30) primary key);", "create table Persona(nombre varchar2(30) primary key);" ]))))
-
-#print(rename_json(parse("SELECT nombre FROM Persona where id = 1 and nombre = 'A'"), create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
-#                                                                                                     "create table Jugador(pid int(2) primary key);"])))
-#print(parse_Sql_To_Json("SELECT nombre FROM Persona where id = 1 and nombre = 'A'", create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
-#                                                                                                     "create table Jugador(pid int(2) primary key);"])))
-#
-#print(rename_json(parse("SELECT nombre FROM Persona join Jugador on id = pid"), create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
-#                                                                                                     "create table Jugador(pid int(2) primary key);"])))
-#print(parse_Sql_To_Json("SELECT nombre FROM Persona JOIN Jugador ON Persona.id = Jugador.id JOIN Equipo ON Jugador.eid = Equipo.id",
-#                        create(["create table Persona(id int(2) primary key, nombre varchar2(30));",
-#                                "create table Jugador(id int(2) primary key, eid int(2));",
-#                                "create table Equipo(id int(2) primary key)"])))
-
-#print(parse_Sql_To_Json("SELECT p.nombre FROM Persona as p", create(["create table Persona(nombre varchar2(30) primary key);"])))
-
-#print(parse("SELECT nombre FROM Persona where nombre = 'A'"))
-#print(rename_json(parse("SELECT nombre FROM Persona where nombre = id"), create(["create table Persona(id int(2) primary key, nombre varchar2(30));"])))
-#print(parse("SELECT nombre FROM Persona WHERE pais = 'España'"))
-#print(rename_json(parse("SELECT nombre FROM Persona WHERE pais = 'España'"), create(
-#            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
-#             "ap1 VARCHAR(10),"
-#             "ap2 VARCHAR(10),"
-#             "edad INT(3),"
-#             "telefono INT(9),"
-#             "pais VARCHAR(10));"
-#             ])))
-#print(parse_Sql_To_Json("SELECT nombre FROM Persona WHERE pais = 'España'", create(
-#            ["CREATE TABLE Persona(nombre VARCHAR2(30) PRIMARY KEY,"
-#             "ap1 VARCHAR(10),"
-#             "ap2 VARCHAR(10),"
-#             "edad INT(3),"
-#             "telefono INT(9),"
-#             "pais VARCHAR(10));"
-#             ])))
 
