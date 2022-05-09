@@ -133,7 +133,7 @@ class TestRule1(unittest.TestCase):
     def testGetRenames(self):
         jsonExample = {"type": "join",
                        "cond": {"type": "eq",
-                                "values": ["vuelo1.origen", "Madrid"]
+                                "values": ["avion1.origen", "Madrid"]
                                 },
                        "lrel": {"type": "sigma",
                                 "cond": {"type": "eq",
@@ -155,11 +155,32 @@ class TestRule1(unittest.TestCase):
                                         }
                                 }
                        }
-        renames = []
-        equi.getRenames(jsonExample, renames)
-        renamesFound = []
-        allRenames = equi.groupRenames(renames, renamesFound)
-        print(allRenames)
+
+        json2 = {"type": "join",
+                       "cond": {"type": "eq",
+                                "values": ["avion2.origen", "Madrid"]
+                                },
+                       "lrel": {"type": "sigma",
+                                "cond": {"type": "eq",
+                                         "values": ["avion1.nombre", 'VuelosEspaña']
+                                         },
+                                "rel": {'type': 'rel',
+                                        'table': {'type': 'rho',
+                                                  'ren': ['avion', 'avion1']
+                                                  }
+                                        }
+                                },
+                       "rrel": {"type": "sigma",
+                                "cond": {"type": "eq",
+                                         "values": ["avion2.nombre", "Iberia"]
+                                         },
+                                "rel": {'type': 'rel',
+                                        'table': {'type': 'rho',
+                                                  'ren': ['avion', 'avion2']}
+                                        }
+                                }
+                       }
+
 
 
 

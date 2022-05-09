@@ -4,8 +4,13 @@ import src.Creates_To_JSON.Creates_Json as createsJSON
 import copy
 import itertools
 
+<<<<<<< Updated upstream
 def equivalence(query_sql1,query_sql2, query_ddl):
     soluciones = ['Equivalentes', 'No sabemos']
+=======
+def equivalence(query_sql1,query_sql2, query_ddl=None):
+    soluciones = ['Equivalentes', 'No sabemos', 'Equivalentes salvo renombramiento']
+>>>>>>> Stashed changes
     try:
         
         creates = createsJSON.create_tables_json(query_ddl)
@@ -29,10 +34,13 @@ def equivalence(query_sql1,query_sql2, query_ddl):
         while final2[0] == False:
             json2rulesApplied = applyRules(json2rulesApplied, None, final2)
 
-        if json1rulesApplied.equals(json2rulesApplied):
+        if json1rulesApplied == json2rulesApplied:
             print(soluciones[0])
         else:
-            print(soluciones[1])
+            if permuteRenames(json1rulesApplied, json2rulesApplied):
+                print(soluciones[2])
+            else:
+                print(soluciones[1])
     except Exception as e:
         print(e)
 
@@ -216,29 +224,95 @@ def groupRenames(renames, renamesFound):
             possibleRenames.append(actualRenames)
     return possibleRenames
 
-def doRename(json, renamesFound, allRenames, renameActual):
-    jsonWithAux = copy.deepcopy(json)
+
+#auion2, avion1 -- avion1, avion2    TABLA AVION
+#vuelo1, vuelo2 -- vuelo2, vuelo1    TABLA VUELO
+#Hay que ir haciendo el rename de cada tabla con cada posible combinación
+#Deberíamos hacer el rename de la tabla0, en la posición 0, y luego por debajo, el rename 0 de la tabla 1, y el rename 1 de la tabla1
+#si no coincide, volvemos a la tabla 0, y hacemos su rename 1, y luego por debajo, el rename 0 de la tabla 1, y el rename 1 de la tabla 1
+def recorrerDiccionario(json, jsonEquivalence, allRenames, tablesFound, permuted, tablaActual, posicionActual, equivalentes):
+    if equivalentes[0] == False:
+        for (key, val) in json.items():
+            if type(val) is dict:
+                recorrerDiccionario(val, jsonEquivalence, allRenames, tablesFound, permuted, tablaActual, posicionActual, equivalentes)
+            elif type(val) is list:
+                if posicionActual != 0:
+                    renamed = False
+                    for i in val:
+                        if renamed == False:
+                            if val[0].find('.') != -1:
+                                aux = val[0].split('.')
+                                thisRename = aux[0]
+                                pos = 0
+                                for r in allRenames[tablaActual]:
+                                    if r == thisRename:
+                                        finalRename = permuted[tablaActual][posicionActual][pos]
+                                        finalRename += '.' + aux[1]
+                                        val[0] = finalRename
+                                        renamed = True
+                                    pos = pos + 1
+                            elif val[1].find('.') != -1:
+                                aux = val[1].split('.')
+                                thisRename = aux[0]
+                                pos = 0
+                                for r in allRenames[tablaActual]:
+                                    if r == thisRename:
+                                        finalRename = permuted[tablaActual][posicionActual][pos]
+                                        finalRename += '.' + aux[1]
+                                        val[1] = finalRename
+                                        renamed = True
+                                    pos = pos + 1
+                            else:
+                                if val[0] == tablesFound[tablaActual]:
+                                    thisRename = val[1]
+                                    pos = 0
+                                    for r in allRenames[tablaActual]:
+                                        if r == thisRename:
+                                            finalRename = permuted[tablaActual][posicionActual][pos]
+                                            val[1] = finalRename
+                                            renamed = True
+                                        pos = pos + 1
+                                else:
+                                    thisRename = val[0]
+                                    pos = 0
+                                    for r in allRenames[tablaActual]:
+                                        if r == thisRename:
+                                            finalRename = permuted[tablaActual][posicionActual][pos]
+                                            val[0] = finalRename
+                                            renamed = True
+                                        pos = pos + 1
+        tablaActual = tablaActual + 1
+        if tablaActual < len(tablesFound):
+            posicionActual = 0
+            while posicionActual < len(allRenames[tablaActual]) and equivalentes[0] == False:
+                recorrerDiccionario(json, jsonEquivalence, allRenames, tablesFound, permuted, tablaActual, posicionActual, equivalentes)
+                posicionActual = posicionActual + 1
+        elif json == jsonEquivalence:
+            equivalentes[0] = True
 
 
 
+def permuteRenames(jsonToPermute, jsonEquivalente):
+    renames = []
+    getRenames(jsonToPermute, renames)
+    permuted = []
+    tablesFound = []
+    allRenames = groupRenames(renames, tablesFound)
+    for i in allRenames:
+        permuted.append(getPermutations(i))
+    jsonCopia = copy.deepcopy(jsonToPermute)
+    equivalentes = [False]
+    posicionActual = 1
+    tablaActual = 0
 
-'''def putAuxs(json, renamesObtained, allRenames, renameActual):
-    if json['type'] == 'sigma':
-        if 'type' in json['rel'] or json['rel']['type'] != 'rel':
-            putAuxs(json['rel'], renamesObtained)
-    elif json['type'] == 'pi':
-        if 'type' in json['rel'] or json['rel']['type'] != 'rel':
-            putAuxs(json['rel'], renamesObtained)
-    elif json['type'] == 'pro':
-        if 'type' in json['lrel'] or json['lrel']['type'] != 'rel':
-            putAuxs(json['lrel'], renamesObtained)
-        if 'type' in json['rrel'] or json['rrel']['type'] != 'rel':
-            putAuxs(json['rrel'], renamesObtained)
-    elif json['type'] == 'join':
-        if 'type' in json['lrel'] or json['lrel']['type'] != 'rel':
-            putAuxs(json['lrel'], renamesObtained)
-        if 'type' in json['rrel'] or json['rrel']['type'] != 'rel':
-            putAuxs(json['rrel'], renamesObtained)
-    elif json['type'] == 'rel':
-        if allRenames[renameActual] in json['table']['ren']:
-'''
+    while posicionActual < len(allRenames[tablaActual]) and equivalentes[0] == False:
+        recorrerDiccionario(jsonCopia, jsonEquivalente, allRenames, tablesFound, permuted, tablaActual, posicionActual,
+                                 equivalentes)
+        posicionActual = posicionActual + 1
+
+    if equivalentes[0]:
+        return True
+    else:
+        return False
+
+
