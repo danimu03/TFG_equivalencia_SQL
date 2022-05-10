@@ -150,6 +150,12 @@ def rule5A(jsonSQL):
     valuesPro = jsonSQL['rel']
     valuesCondSigma = jsonSQL['cond']
 
+    if 'type' in valuesCondSigma:
+        for i in valuesCondSigma['values']:
+            sort_pair(i['values'])
+        valuesCondSigmaOrdenados = sorted(valuesCondSigma['values'], key=functools.cmp_to_key(compare_values))
+        valuesCondSigma = {'type':'and',
+                           'values':valuesCondSigmaOrdenados}
 
     jsonSQL = { "type" : "join",
                 "cond" : valuesCondSigma,
@@ -162,15 +168,17 @@ def rule5A(jsonSQL):
 def rule5B(jsonSQL):
 
     valuesCondSigma = jsonSQL['cond']
+    sort_pair(valuesCondSigma['values'])
     valuesJoin = jsonSQL['rel']
     leftRel = valuesJoin["lrel"]
     rightRel = valuesJoin["rrel"]
 
     if 'type' in valuesJoin['cond'] and valuesJoin['cond']['type'] == 'and':
         newCond = valuesJoin['cond']['values']
-        finalValues = [valuesCondSigma]
+        mediumValues = [valuesCondSigma]
         for i in newCond:
-            finalValues.append(i)
+            mediumValues.append(i)
+        finalValues = sorted(mediumValues, key=functools.cmp_to_key(compare_values))
         jsonAnd = {"type": "and",
                    "values": finalValues
                    }
@@ -187,19 +195,29 @@ def rule5B(jsonSQL):
     return jsonSQL
 
 def rule6(jsonSQL):
-    right = jsonSQL['rrel']
-    left = jsonSQL['lrel']
+    right = jsonSQL['rrel']['table']
+    left = jsonSQL['lrel']['table']
 
-    jsonSQL['rrel'] = left
-    jsonSQL['lrel'] = right
+    left['ren'].sort()
+    right['ren'].sort()
+
+    sortedVals = sorted([right, left], key=functools.cmp_to_key(compare_values))
+
+    jsonSQL['rrel'] = sortedVals[0]
+    jsonSQL['lrel'] = sortedVals[1]
     return jsonSQL
 
 def rule7(jsonSQL):
-    right = jsonSQL['rrel']
-    left = jsonSQL['lrel']
+    right = jsonSQL['rrel']['table']
+    left = jsonSQL['lrel']['table']
 
-    jsonSQL['rrel'] = left
-    jsonSQL['lrel'] = right
+    left['ren'].sort()
+    right['ren'].sort()
+
+    sortedVals = sorted([right, left], key=functools.cmp_to_key(compare_values))
+
+    jsonSQL['rrel'] = sortedVals[0]
+    jsonSQL['lrel'] = sortedVals[1]
     return jsonSQL
 
 def rule8A(jsonSQL):
@@ -215,10 +233,9 @@ def rule8A(jsonSQL):
     jsonSQL['rrel']['rrel'] = right
     return jsonSQL
 
-#TODO
 def rule8B(jsonSQL):
 
-    left_left = jsonSQL['lrel']['lrel   ']
+    left_left = jsonSQL['lrel']['lrel']
     left_right = jsonSQL['lrel']['rrel']
     right = jsonSQL['rrel']
 
@@ -227,13 +244,15 @@ def rule8B(jsonSQL):
             "lrel": "",
             "rrel": ""
             }
-    #hay un and en el primer cond (FALTA COMPROBAR EL RESTO DE CONDS)
+    #Comprobamos si existe algún and en la condición
     if 'type' in jsonSQL['cond'] and jsonSQL['cond']['type'] == 'and':
         '''cond'''
         values_cond = jsonSQL['cond']['values']
         values_left_first = jsonSQL['lrel']['cond']['values'][0]
         values_left_second = jsonSQL['lrel']['cond']['values'][1]
         values_cond.append(values_left_second)
+        valuesOrdenados = sorted(values_cond, key=functools.cmp_to_key(compare_values))
+
         '''lrel = left_left'''
         '''rrel'''
         json_right = {
@@ -247,55 +266,39 @@ def rule8B(jsonSQL):
         json_right['rrel'] = right
         '''resultado'''
         json['cond'] = { "type": "and",
-                         "values": values_cond
+                         "values": valuesOrdenados
         }
         json['lrel'] = left_left
         json['rrel'] = json_right
     else:
-        cond = jsonSQL['cond']
-        left_cond = jsonSQL['lrel']['cond']
-        aux = jsonSQL['lrel']
-        aux_values = jsonSQL['lrel']['cond']['values'][0]
+        '''cond'''
+        values_cond = jsonSQL['cond']
+        values_left_first = jsonSQL['lrel']['cond']['values'][0]
+        values_left_second = jsonSQL['lrel']['cond']['values'][1]
+        values_and = []
+        values_and.append(values_left_second)
+        values_and.append(values_cond)
+        valuesOrdenados = sorted(values_and, key=functools.cmp_to_key(compare_values))
 
-        jsonSQL['cond']['values'][0] = cond
-        jsonSQL['cond'] = left_cond
-        jsonSQL['rrel']['cond'] = aux_values
-        jsonSQL['lrel'] = left_left
-        jsonSQL['rrel'] = aux
-        jsonSQL['rrel']['lrel'] = left_right
-        jsonSQL['rrel']['rrel'] = right
-        json = jsonSQL
+        '''lrel = left_left'''
+        '''rrel'''
+        json_right = {
+             "type": "join",
+             "cond": {},
+             "lrel": "",
+             "rrel": ""
+        }
+        json_right['cond'] = values_left_first
+        json_right['lrel'] = left_right
+        json_right['rrel'] = right
+        '''resultado'''
+        json['cond'] = { "type": "and",
+                         "values": valuesOrdenados
+        }
+        json['lrel'] = left_left
+        json['rrel'] = json_right
 
     return json
-
-''''def rule8B(jsonSQL):
-
-    cond = jsonSQL['cond']
-    left_cond = jsonSQL['lrel']['cond']
-    left_left = jsonSQL['lrel']['lrel']
-    left_right = jsonSQL['lrel']['rrel']
-    right = jsonSQL['rrel']
-    aux = jsonSQL['lrel']
-    aux_values = jsonSQL['lrel']['cond']['values'][0]
-
-    if 'type' in cond and cond['type'] == 'and':
-        newCond = cond['values']
-        finalValues = left_cond['values']
-        for i in newCond:
-            finalValues.append(i)
-        jsonAnd = {"type": "and",
-                   "values": finalValues
-                   }
-    else:
-        jsonSQL['cond']['values'][0] = cond
-        jsonSQL['cond'] = left_cond
-        jsonSQL['rrel']['cond'] = aux_values
-
-    jsonSQL['lrel'] = left_left
-    jsonSQL['rrel'] = aux
-    jsonSQL['rrel']['lrel'] = left_right
-    jsonSQL['rrel']['rrel'] = right
-    return jsonSQL'''''
 
 def rule9A(jsonSQL):
 
@@ -483,11 +486,140 @@ def rule10B(jsonSQL, creates):
         return jsonSQL
 
 
+def rule11A(jsonSQL, creates):
+    # comprobamos si hay que aplicar la regla
+    # los valores del pi de los rel deben de pertenecer a distintas tablas
+    value1 = jsonSQL['lrel']['proj'][0].split('.')
+    value2 = jsonSQL['rrel']['proj'][0].split('.')
+
+
+    tipo1tabla1 = False
+    tipo1tabla2 = False
+    tipo2tabla1 = False
+    tipo2tabla2 = False
+
+    nombreTabla1 = value1[0][:-1]
+    nombreTabla2 = value2[0][:-1]
+
+    for table in creates:
+        if table['name'] == nombreTabla1:
+            for column in table['columns']:
+                if column['name'] == value1[1]:
+                    tipo1tabla1 = True
+                if column['name'] == value2[1]:
+                    tipo2tabla1 = True
+
+        if table['name'] == nombreTabla2:
+            for column in table['columns']:
+                if column['name'] == value1[1]:
+                    tipo1tabla2 = True
+                if column['name'] == value2[1]:
+                    tipo2tabla2 = True
+
+    if tipo1tabla1 == True and tipo1tabla2 == False and tipo2tabla1 == False and tipo2tabla2 == True:
+
+        newProj = []
+        newProj.append(jsonSQL['lrel']['proj'][0])
+        newProj.append(jsonSQL['rrel']['proj'][0])
+        jsonJoin = {'type':'join',
+                    'cond': jsonSQL['cond'],
+                    'lrel': jsonSQL['lrel']['rel'],
+                    'rrel': jsonSQL['rrel']['rel']
+                    }
+        newJson = {'type': 'pi',
+                   'proj': newProj,
+                   'rel': jsonJoin
+                   }
+        return newJson
+    else:
+        return jsonSQL
+
+def rule11B(jsonSQL, creates):
+    # comprobamos si hay que aplicar la regla
+    # los valores del pi de los rel deben de pertenecer a distintas tablas
+    value1original = jsonSQL['proj'][0]
+    value2original = jsonSQL['proj'][1]
+    value1 = jsonSQL['proj'][0].split('.')
+    value2 = jsonSQL['proj'][1].split('.')
+
+    if value1original in jsonSQL['rel']['lrel']['proj']:
+        if jsonSQL['rel']['lrel']['proj'][0] == value1original:
+            value3 = jsonSQL['rel']['lrel']['proj'][1].split('.')
+        else:
+            value3 = jsonSQL['rel']['lrel']['proj'][0].split('.')
+        if jsonSQL['rel']['rrel']['proj'][0] == value2original:
+            value4 = jsonSQL['rel']['rrel']['proj'][1].split('.')
+        else:
+            value4 = jsonSQL['rel']['rrel']['proj'][0].split('.')
+    else:
+        if jsonSQL['rel']['lrel']['proj'][0] == value2original:
+            value4 = jsonSQL['rel']['lrel']['proj'][1].split('.')
+        else:
+            value4 = jsonSQL['rel']['lrel']['proj'][0].split('.')
+        if jsonSQL['rel']['rrel']['proj'][0] == value1original:
+            value3 = jsonSQL['rel']['rrel']['proj'][1].split('.')
+        else:
+            value3 = jsonSQL['rel']['rrel']['proj'][0].split('.')
+
+    if value1 != value3 and value2 != value4:
+        tipo1tabla1 = False
+        tipo1tabla2 = False
+        tipo2tabla1 = False
+        tipo2tabla2 = False
+        tipo3tabla1 = False
+        tipo3tabla2 = False
+        tipo4tabla1 = False
+        tipo4tabla2 = False
+
+        nombreTabla1 = value1[0][:-1]
+        nombreTabla2 = value2[0][:-1]
+
+        for table in creates:
+            if table['name'] == nombreTabla1:
+                for column in table['columns']:
+                    if column['name'] == value1[1]:
+                        tipo1tabla1 = True
+                    if column['name'] == value2[1]:
+                        tipo2tabla1 = True
+                    if column['name'] == value3[1]:
+                        tipo3tabla1 = True
+                    if column['name'] == value4[1]:
+                        tipo4tabla1 = True
+            if table['name'] == nombreTabla2:
+                for column in table['columns']:
+                    if column['name'] == value1[1]:
+                        tipo1tabla2 = True
+                    if column['name'] == value2[1]:
+                        tipo2tabla2 = True
+                    if column['name'] == value3[1]:
+                        tipo3tabla2 = True
+                    if column['name'] == value4[1]:
+                        tipo4tabla2 = True
+
+        if tipo1tabla1 == True and tipo1tabla2 == False and tipo2tabla1 == False and tipo2tabla2 == True and \
+                tipo3tabla1 == True and tipo3tabla2 == False and tipo4tabla1 == False and tipo4tabla2 == True:
+
+            newRel = {'type': 'join',
+                      'cond': jsonSQL['rel']['cond'],
+                      'lrel': jsonSQL['rel']['lrel']['rel'],
+                      'rrel': jsonSQL['rel']['rrel']['rel'],
+                      }
+            jsonSQL['rel'] = newRel
+            return jsonSQL
+        else:
+            return jsonSQL
+    else:
+        return jsonSQL
+
 def compare_values(json1, json2):
     # esta función es solo para comparar diccionarios, los pares ya nos vienen ordenados
 
-    values1 = json1['values']
-    values2 = json2['values']
+    if json1['type'] == 'rho':
+        values1 = json1['ren']
+        values2 = json2['ren']
+    else:
+        values1 = json1['values']
+        values2 = json2['values']
 
     tipo1 = str(type(values1[0]))
     tipo2 = str(type(values2[0]))

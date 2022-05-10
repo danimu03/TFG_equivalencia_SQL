@@ -470,7 +470,7 @@
     Theta: nombre=Juan
     
     {   "type" : "pi",
-        "proj" : [edad, premio],
+        "proj" : ['edad', 'premio'],
         "rel" : { "type" : "join",
                   "cond" : {      "type" : "eq",
                                   "values" : ["nombre", "Juan"]
@@ -487,7 +487,7 @@
     }
     ------------------------------------------->
     {   "type" : "pi",
-        "proj" : [edad, premio],
+        "proj" : ['edad', 'premio'],
         "rel" :{    "type" : "join",
                     "cond" :{     "type" : "eq",
                                   "values" : ["nombre", "Juan"]

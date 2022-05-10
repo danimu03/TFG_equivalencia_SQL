@@ -3,18 +3,15 @@ import src.SQL_To_JSON.Sql_To_Json as sqlJSON
 import src.Creates_To_JSON.Creates_Json as createsJSON
 import copy
 import itertools
+import functools
 
-<<<<<<< Updated upstream
 def equivalence(query_sql1,query_sql2, query_ddl):
-    soluciones = ['Equivalentes', 'No sabemos']
-=======
-def equivalence(query_sql1,query_sql2, query_ddl=None):
     soluciones = ['Equivalentes', 'No sabemos', 'Equivalentes salvo renombramiento']
->>>>>>> Stashed changes
     try:
-        
+
+        # si tenemos una sentencia de creacion de tablas, la parseamos tambien
         creates = createsJSON.create_tables_json(query_ddl)
-       
+
         #obtenemos el json de la primera consulta
         json1 = sqlJSON.parse_Sql_To_Json(query_sql1, creates)
         #obtenemos el json de la segunda consulta
@@ -35,17 +32,17 @@ def equivalence(query_sql1,query_sql2, query_ddl=None):
             json2rulesApplied = applyRules(json2rulesApplied, None, final2)
 
         if json1rulesApplied == json2rulesApplied:
-            print(soluciones[0])
+            return soluciones[0]
         else:
             if permuteRenames(json1rulesApplied, json2rulesApplied):
-                print(soluciones[2])
+                return soluciones[2]
             else:
-                print(soluciones[1])
+                return soluciones[1]
     except Exception as e:
         print(e)
 
 
-    return soluciones[0]
+    return soluciones[1]
 
 
 def applyRules(json, creates, esFinal):
@@ -91,9 +88,10 @@ def applyRules(json, creates, esFinal):
                 elif json['rel']['type'] == 'join':
                     #¿Se puede aplicar la regla 11B?
                     if json['rel']['rrel']['type'] == 'pi' and json['rel']['lrel']['type'] == 'pi':
-                        jsonResultado=rulesAR.rule11B(json)
+                        jsonResultado=rulesAR.rule11B(json, creates)
                 else:
                     jsonResultado = json
+                json['proj'].sort()
         else:
             esFinal[0] = True
             jsonResultado = json
@@ -111,22 +109,21 @@ def applyRules(json, creates, esFinal):
             rightJson = True
 
         #aplicamos las reglas
-        if leftJson == False and rightJson == False:
-            #regla 6
-            jsonResultado=rulesAR.rule6(json)
-        elif leftJson == True and rightJson == False:
-            if json['type']['lrel'] == 'pro':
+        if leftJson == True and rightJson == True:
+            #¿Aplicamos la regla 9b?
+            if json['lrel'] ['type']== 'sigma' and json['rrel']['type'] == 'sigma':
+                jsonCopia = copy.deepcopy(json)
+                jsonResultado = rulesAR.rule9B(jsonCopia, creates)
+                json = jsonResultado
+            elif json['lrel'] ['type'] == 'rel' and json['rrel']['type'] == 'rel':
+                # regla 6
+                jsonResultado = rulesAR.rule6(json)
+            elif json['lrel'] ['type'] == 'pro' and json['rrel']['type'] == 'rel':
                 #aplicamos regla 8a
                 jsonResultado = rulesAR.rule8A(json)
-            elif json['type']['lrel'] == 'sigma':
+            elif json['lrel']['type'] == 'sigma' and json['rrel']['type'] == 'rel':
                 #aplicamos la regla 9a
-                jsonResultado = rulesAR.rule9A(json)
-        elif leftJson == True and rightJson == True:
-                #¿Aplicamos la regla 9b?
-                if json['type']['lrel'] == 'sigma' and json['type']['rrel'] == 'sigma':
-                    jsonCopia = copy.deepcopy(json)
-                    jsonResultado = rulesAR.rule9b(jsonCopia)
-                    json = jsonResultado
+                jsonResultado = rulesAR.rule9A(json, creates)
     elif json['type'] == 'join':
         #7 8b 10a 10b 11a
         leftJson = False
@@ -140,31 +137,31 @@ def applyRules(json, creates, esFinal):
             json['rrel'] = applyRules(jsonCopia, creates, esFinal)
             rightJson = True
 
-            # aplicamos las reglas
-            if leftJson == False and rightJson == False:
-                #aplicamos la regla 7
-                jsonResultado=rulesAR.rule7(json)
-            elif leftJson == True and rightJson == False:
-                if json['lrel']['type'] == 'join':
-                    #aplicamos la regla 8b
-                    jsonResultado = rulesAR.rule8b(json)
-                elif json['lrel']['type'] == 'sigma':
-                    #aplicamos la regla 10a
-                    jsonCopia = copy.deepcopy(json)
-                    jsonResultado = rulesAR.rule10a(jsonCopia)
-                    json = jsonResultado
-            elif leftJson == True and rightJson == True:
-                # ¿Aplicamos la regla 10b?
-                if json['lrel']['type'] == 'sigma' and json['rrel']['type'] == 'sigma':
-                    jsonCopia = copy.deepcopy(json)
-                    jsonResultado = rulesAR.rule10b(jsonCopia)
-                    json = jsonResultado
-                # ¿Aplicamos la regla 11a?
-                elif json['lrel']['type'] == 'pi' and json['rrel']['type'] == 'pi':
-                    jsonCopia = copy.deepcopy(json)
-                    jsonResultado = rulesAR.rule11a(jsonCopia)
-                    json = jsonResultado
-    elif json['type'] == 'join':
+        # aplicamos las reglas
+        if leftJson == True and rightJson == True:
+            # ¿Aplicamos la regla 10b?
+            if json['lrel']['type'] == 'sigma' and json['rrel']['type'] == 'sigma':
+                jsonCopia = copy.deepcopy(json)
+                jsonResultado = rulesAR.rule10B(jsonCopia, creates)
+                json = jsonResultado
+            # ¿Aplicamos la regla 11a?
+            elif json['lrel']['type'] == 'pi' and json['rrel']['type'] == 'pi':
+                jsonCopia = copy.deepcopy(json)
+                jsonResultado = rulesAR.rule11A(jsonCopia, creates)
+                json = jsonResultado
+            elif json['lrel']['type'] == 'rel' and json['rrel']['type'] == 'rel':
+                # regla 6
+                jsonResultado = rulesAR.rule7(json)
+            elif json['lrel']['type'] == 'join' and json['rrel']['type'] == 'rel':
+                # aplicamos la regla 8b
+                jsonResultado = rulesAR.rule8B(json)
+            elif json['lrel']['type'] == 'sigma' and json['rrel']['type'] == 'rel':
+                # aplicamos la regla 10a
+                jsonCopia = copy.deepcopy(json)
+                jsonResultado = rulesAR.rule10A(jsonCopia, creates)
+                json = jsonResultado
+
+    elif json['type'] == 'rho' or (json['type'] == 'rel' and 'table' in json):
         esFinal[0] = True
 
     if not jsonResultado:
@@ -203,6 +200,8 @@ def getRenames(json, renames):
             renames.append(json['rrel']['table']['ren'])
     elif json['type'] == 'rel':
         renames.append(json['table']['ren'])
+    elif json['type'] == 'rho':
+        renames.append(json['ren'])
 
 
 def getPermutations(renames):
@@ -236,58 +235,54 @@ def recorrerDiccionario(json, jsonEquivalence, allRenames, tablesFound, permuted
             if type(val) is dict:
                 recorrerDiccionario(val, jsonEquivalence, allRenames, tablesFound, permuted, tablaActual, posicionActual, equivalentes)
             elif type(val) is list:
-                if posicionActual != 0:
-                    renamed = False
+                if type(val[0]) is dict:
                     for i in val:
-                        if renamed == False:
-                            if val[0].find('.') != -1:
-                                aux = val[0].split('.')
-                                thisRename = aux[0]
-                                pos = 0
-                                for r in allRenames[tablaActual]:
-                                    if r == thisRename:
-                                        finalRename = permuted[tablaActual][posicionActual][pos]
-                                        finalRename += '.' + aux[1]
-                                        val[0] = finalRename
-                                        renamed = True
-                                    pos = pos + 1
-                            elif val[1].find('.') != -1:
-                                aux = val[1].split('.')
-                                thisRename = aux[0]
-                                pos = 0
-                                for r in allRenames[tablaActual]:
-                                    if r == thisRename:
-                                        finalRename = permuted[tablaActual][posicionActual][pos]
-                                        finalRename += '.' + aux[1]
-                                        val[1] = finalRename
-                                        renamed = True
-                                    pos = pos + 1
-                            else:
-                                if val[0] == tablesFound[tablaActual]:
-                                    thisRename = val[1]
-                                    pos = 0
-                                    for r in allRenames[tablaActual]:
-                                        if r == thisRename:
-                                            finalRename = permuted[tablaActual][posicionActual][pos]
-                                            val[1] = finalRename
-                                            renamed = True
-                                        pos = pos + 1
-                                else:
-                                    thisRename = val[0]
-                                    pos = 0
-                                    for r in allRenames[tablaActual]:
-                                        if r == thisRename:
-                                            finalRename = permuted[tablaActual][posicionActual][pos]
-                                            val[0] = finalRename
-                                            renamed = True
-                                        pos = pos + 1
+                        recorrerDiccionario(i, jsonEquivalence, allRenames, tablesFound, permuted, tablaActual, posicionActual, equivalentes)
+                else:
+                    if posicionActual != 0 or tablaActual != 0:
+                        if val[0].find('.') != -1:
+                            aux = val[0].split('.')
+                            thisRename = aux[0]
+                            pos = 0
+                            for r in allRenames[tablaActual]:
+                                if r == thisRename:
+                                    finalRename = permuted[tablaActual][posicionActual][pos]
+                                    finalRename += '.' + aux[1]
+                                    val[0] = finalRename
+                                pos = pos + 1
+                        if val[1].find('.') != -1:
+                            aux = val[1].split('.')
+                            thisRename = aux[0]
+                            pos = 0
+                            for r in allRenames[tablaActual]:
+                                if r == thisRename:
+                                    finalRename = permuted[tablaActual][posicionActual][pos]
+                                    finalRename += '.' + aux[1]
+                                    val[1] = finalRename
+                                pos = pos + 1
+                        if val[0] == tablesFound[tablaActual]:
+                            thisRename = val[1]
+                            pos = 0
+                            for r in allRenames[tablaActual]:
+                                if r == thisRename:
+                                    finalRename = permuted[tablaActual][posicionActual][pos]
+                                    val[1] = finalRename
+                                pos = pos + 1
+                        if val[1] == tablesFound[tablaActual]:
+                            thisRename = val[0]
+                            pos = 0
+                            for r in allRenames[tablaActual]:
+                                if r == thisRename:
+                                    finalRename = permuted[tablaActual][posicionActual][pos]
+                                    val[0] = finalRename
+                                pos = pos + 1
         tablaActual = tablaActual + 1
         if tablaActual < len(tablesFound):
             posicionActual = 0
             while posicionActual < len(allRenames[tablaActual]) and equivalentes[0] == False:
                 recorrerDiccionario(json, jsonEquivalence, allRenames, tablesFound, permuted, tablaActual, posicionActual, equivalentes)
                 posicionActual = posicionActual + 1
-        elif json == jsonEquivalence:
+        if json == jsonEquivalence:
             equivalentes[0] = True
 
 
@@ -302,12 +297,12 @@ def permuteRenames(jsonToPermute, jsonEquivalente):
         permuted.append(getPermutations(i))
     jsonCopia = copy.deepcopy(jsonToPermute)
     equivalentes = [False]
-    posicionActual = 1
+    posicionActual = 0
     tablaActual = 0
 
     while posicionActual < len(allRenames[tablaActual]) and equivalentes[0] == False:
         recorrerDiccionario(jsonCopia, jsonEquivalente, allRenames, tablesFound, permuted, tablaActual, posicionActual,
-                                 equivalentes)
+                                     equivalentes)
         posicionActual = posicionActual + 1
 
     if equivalentes[0]:
