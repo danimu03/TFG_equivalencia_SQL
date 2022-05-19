@@ -1,0 +1,76 @@
+\chapter{Generación de expresiones en álgebra relacional a partir de consultas SQL}
+\noindent
+
+El trabajo a realizar en esta parte del desarrollo de nuestra biblioteca consiste en la generación de expresiones en álgebra relacional a partir de consultas en lenguaje SQL. La idea principal es la de crear una función que reciba como parámetro un string que contenga la consulta SQL, aplicar sobre ella las transformaciones necesarias y devolver la expresión en álgebra relacional.
+
+En este momento surge la necesidad de establecer un formato común, para todos los módulos de nuestra librería, de las expresiones del álgebra relacional. Por su integración con el lenguaje utilizado decidimos trabajar con formatos JSON o diccionarios, algo que nos facilita el manejo de dichas expresiones para realizar las operaciones necesarias sobre ellas.
+
+Dado que no existe un estándar definido para las expresiones del álgebra relacional como diccionarios python o JSON, generamos uno en el que tratamos las operaciones del álgebra relacional que nos vamos a encontrar en nuestras consultas, estableciendo para cada una de ellas un formato interno estandarizado.
+
+\section{Estándar JSON de operaciones del álgebra relacional}
+Establecemos un formato genérico estandarizado interno para las operaciones de proyección, selección, renombramiento, producto cartesiano, join, condiciones y relaciones. Este formato debe mantenerse en todo el proceso interno de cálculo de equivalencias, tanto tras la traducción de consultas en lenguaje SQL como tras la aplicación de reglas.
+
+A continuación, mostramos los distintos formatos para cada operación definida.
+\subsection{\textit{Projection}}
+
+\subsection{\textit{Selection}}
+
+\subsection{\textit{Rename}}
+
+\subsection{\textit{Cartesian product}}
+
+\subsection{\textit{Join}}
+
+\subsection{\textit{Relation}}
+
+\subsection{\textit{Conditions}}
+
+
+\section{Traducción de SQL a diccionario de Python}
+
+Tras definir el formato para las expresiones en álgebra relacional, el siguiente paso es realizar la traducción de la consulta SQL. Para ello hacemos uso de una biblioteca de Python ya existente, mo-sql-parsing.
+
+Esta biblioteca tiene como objetivo convertir las consultas SQL en formato JSON (diccionarios Python). Originalmente estaba dirigido a MySQL, pero tras su crecimiento y nuevas versiones se han ido incluyendo nuevos motores de bases de datos, soportando en la actualidad los más utilizados.
+
+Para realizar esta transformación se llama a la función parse de la librería mo-sql-parsing, la cual recibe una variable que contiene la consulta SQL y devuelve un diccionario con esta consulta en un formato JSON preestablecido.
+La librería soporta todo tipo de sentencias SQL, definición de datos, control de acceso y manipulación de datos. Aunque durante nuestra implementación solo haremos uso de las sentencias DML y DDL.
+
+El usar esta librería nos libera del trabajo de tener que realizar un parseo del string de las sentencias SQL a formato JSON, de esta manera trabajaremos ya con la estructura de datos donde deseamos almacenar nuestros resultados, sobre la que realizaremos distintas operaciones para transformarla y obtener el formato establecido anteriormente.
+
+El alcance de nuestra librería definido únicamente para consultas conjuntivas hace necesario realizar un chequeo tras la obtención de la sentencia SQL en formato JSON, esto se debe a que podrían recibirse consultas no soportadas en nuestra librería pero si soportadas por la librería mo-sql-parsing, el tratamiento de una sentencia no soportada supondría un error fatal dentro de nuestro proceso de parseo para obtener la expresión en álgebra relacional. Para ello creamos una función auxiliar encargada de comprobar si todos los operadores SQL que contiene este primer diccionario están soportadas, definiendo previamente qué operadores son:
+
+("select", "from", "join", "on", "eq", "where", "and", "value", "cross join", "name", "literal")
+
+La función CheckKeys comprueba de manera recursiva si todas las Keys del diccionario están soportadas, en caso de no estarlo lanza una excepción propia.
+
+
+\section{Renombramiento de las consultas SQL}
+La operación de renombramiento de las consultas SQL nos supone una de las mayores dificultades a la cual nos enfrentamos en el desarrollo de este módulo. Esto se debe a que se presentan un gran número de posibilidades a la hora de renombrar las consultas, por lo que debemos tomar una decisión sobre cómo vamos a abordar de manera general todos estos casos.
+
+Para ello tratamos todas las posibilidades que se nos presentan de la misma forma, realizar un renombramiento propio a todas las sentencias SQL a las que nos enfrentamos, tengan ellas ya un renombramiento propio o no. De esta manera obtenemos unos resultados estandarizados.
+
+Este renombramiento propio consiste en dar un alias único a cada tabla según se va encontrando. Este alias será el propio nombre de la tabla más un número que indica la cantidad de apariciones que dicha tabla en la consulta.
+
+SELECT (figura con el código correspondiente)
+
+De la misma forma, tratamos todos los campos que aparecen en las condiciones del JOIN o WHERE y de la cláusula SELECT, decorandolos con el formato Alias.Campo
+
+SELECT (figura con el ccódigo correspondiente)
+
+Si se presenta una consulta en la cual ya existe un renombramiento previo, este se elimina y se lleva el renombramiento que hemos establecido.
+
+Surge también la necesidad de crear una excepción propia para controlar los numerosos casos que se nos presentan en los cuales una consulta uede estar sintácticamente bien escrita, por lo que no supone ningún problema en la primera fase de transformación con el parseo de mo-sql-parsing, pero existe la posibilidad de, entre otros errores, referenciar a columnas inexistentes o ambiguas. 
+
+Estos fallos son detectados en el proceso de renombramiento, y para ello será necesario tener las información de las consultas de creación de todas las tablas que intervienen en la consulta. Para ello, creamos una función auxiliar llamada create\_tables\_json , que recibe una lista con todas las sentencias de creación de tablas y tras usar el parseo de mo-sql-parsing, devuelve otra lista con dichas sentencias en formato JSON.
+
+A continuación, se describe los casos particulares que se dan en el proceso de renombramiento, una vez establecido nuestro formato estándar:
+
+\begin{itemize}
+    \item Columna ambigua
+    
+    Este problema se presenta cuando hay una referencia a alguna columna cuyo nombre coincide en dos o varias tablas de la consulta y no existe un renombramiento previo que permita identificar a cual se refiere. En caso de producirse se lanzaría nuestra excepción.
+
+    \item Columna inexistente
+    
+    Este problema se presenta cuando hay una referencia a alguna columna cuyo nombre no coincide con ninguna de las columnas de las tablas de la consulta. En caso de producirse se lanzaría nuestra excepción.
+\end{itemize}
