@@ -43,13 +43,13 @@ def parse_Sql_To_Json(sql, creates):
         previousJson = parse(sql);
         checkKeys(previousJson, supportSQL)
         previousJson = rename_json(previousJson,creates)
-        return parse_Sql_Json(previousJson)
+        return literal_to_JSON(previousJson)
     except Exception as e:
         # print(e) #para pruebas locales
         raise ErrorSqlQuery(e) #para uso final
 
 
-def parse_Sql_Json(previousJson):
+def literal_to_JSON(previousJson):
     """
     Transforms the dict created with mo_sql_parsing to a dict according to the definitions created
 
@@ -76,7 +76,7 @@ def parse_Sql_Json(previousJson):
 
 def sql_select(previousJson):
     """
-    Transforms the SELECT key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+    Transforms the SELECT key-value pair, modifies the previousJson and recursively calls the function literal_to_JSON()
 
     :param previousJson: dict to transform
     :return: dict with the query transformed to relational algebra according to the definitions created
@@ -92,12 +92,12 @@ def sql_select(previousJson):
     json["type"] = "pi"
     json["proj"] = values
     del previousJson["select"]
-    json["rel"] = parse_Sql_Json(previousJson)
+    json["rel"] = literal_to_JSON(previousJson)
     return json
 
 def sql_and(previousJson):
     """
-    Transforms the AND key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+    Transforms the AND key-value pair, modifies the previousJson and recursively calls the function literal_to_JSON()
 
     :param previousJson: dict to transform
     :return: dict with the query transformed to relational algebra according to the definitions created
@@ -107,13 +107,13 @@ def sql_and(previousJson):
     aux = previousJson["and"]
     values = []
     for i in aux:
-        values.append(parse_Sql_Json(i))
+        values.append(literal_to_JSON(i))
     json["values"] = values
     return json
 
 def sql_eq(previousJson):
     """
-    Transforms the EQ key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+    Transforms the EQ key-value pair, modifies the previousJson and recursively calls the function literal_to_JSON()
 
     :param previousJson: dict to transform
     :return: dict with the query transformed to relational algebra according to the definitions created
@@ -133,7 +133,7 @@ def sql_eq(previousJson):
 
 def sql_where(previousJson):
     """
-    Transforms the WHERE key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+    Transforms the WHERE key-value pair, modifies the previousJson and recursively calls the function literal_to_JSON()
 
     :param previousJson: dict to transform
     :return: dict with the query transformed to relational algebra according to the definitions created
@@ -141,15 +141,15 @@ def sql_where(previousJson):
     json={}
     json["type"] = "sigma"
     auxJson = previousJson["where"]
-    json["cond"] = parse_Sql_Json(auxJson)
+    json["cond"] = literal_to_JSON(auxJson)
     del previousJson["where"]
-    json["rel"] = parse_Sql_Json(previousJson)
+    json["rel"] = literal_to_JSON(previousJson)
     return json
 
 
 def sql_from(previousJson):
     """
-    Transforms the FROM key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+    Transforms the FROM key-value pair, modifies the previousJson and recursively calls the function literal_to_JSON()
 
     :param previousJson: dict to transform
     :return: dict with the query transformed to relational algebra according to the definitions created
@@ -195,7 +195,7 @@ def sql_join(value):
     json = {}
     json["type"] = "join"
     valueJoin = value[1]
-    json["cond"] = parse_Sql_Json(valueJoin["on"])
+    json["cond"] = literal_to_JSON(valueJoin["on"])
 
 
     lreljson = {}
@@ -241,7 +241,7 @@ def sql_join_dict(value):
 
 def sql_pro(value):
     """
-    Transforms the CARTESIAN PRODUCT key-value pair, modifies the previousJson and recursively calls the function parse_Sql_Json()
+    Transforms the CARTESIAN PRODUCT key-value pair, modifies the previousJson and recursively calls the function literal_to_JSON()
 
     :param value: list of elements to transform or a single element
     :return: dict with the query transformed to relational algebra according to the definitions created
