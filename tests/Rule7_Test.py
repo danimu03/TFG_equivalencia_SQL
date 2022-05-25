@@ -2,7 +2,7 @@ import unittest
 import src.Rules_AR.rulesAR as rulesAR
 
 
-class TestRule6(unittest.TestCase):
+class TestRule7(unittest.TestCase):
 
     def test_simple1(self):
 
@@ -10,15 +10,27 @@ class TestRule6(unittest.TestCase):
                         "cond" : {"type" : "eq",
                                   "values" : ["nombre", "Juan"]
                                   },
-                        "lrel" : "Personas",
-                        "rrel" : "Jugadores"
+                        "lrel" : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Personas', 'Personas1']},
+                               },
+                        "rrel" : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Jugadores', 'Jugadores1']},
+                               }
                        }
         expected = {"type" : "join",
                     "cond" : {"type" : "eq",
                               "values" : ["nombre", "Juan"]
                               },
-                    "lrel" : "Jugadores",
-                    "rrel" : "Personas"
+                    "lrel" : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Jugadores', 'Jugadores1']},
+                               },
+                    "rrel" : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Personas', 'Personas1']},
+                               }
                    }
         try:
             res = rulesAR.rule7(jsonExample)
