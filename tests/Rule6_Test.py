@@ -7,11 +7,23 @@ class TestRule6(unittest.TestCase):
     def test_simple1(self):
 
         jsonExample = {'type' : 'pro',
-                       'lrel' : {'type': 'rho', 'ren': ['Personas', 'Personas1']},
-                       'rrel' : {'type': 'rho', 'ren': ['Jugadores', 'Jugadores1']}}
+                       'lrel' : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Personas', 'Personas1']},
+                               },
+                       'rrel' : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Jugadores', 'Jugadores1']},
+                               }}
         expected = {'type' : 'pro',
-                    'lrel' : {'type': 'rho', 'ren': ['Jugadores', 'Jugadores1']},
-                    'rrel' : {'type': 'rho', 'ren': ['Personas', 'Personas1']}}
+                    'lrel' : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Jugadores', 'Jugadores1']},
+                               },
+                    'rrel' : {'type' : 'rel' ,
+                               'table' : {'type': 'rho',
+                                          'ren': ['Personas', 'Personas1']},
+                               }}
         try:
             res = rulesAR.rule6(jsonExample)
             self.assertEqual(res, expected)
