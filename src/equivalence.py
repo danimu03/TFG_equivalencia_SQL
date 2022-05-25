@@ -126,6 +126,7 @@ def applyRules(json, creates, esFinal):
                 jsonResultado = rulesAR.rule9A(json, creates)
     elif json['type'] == 'join':
         #7 8b 10a 10b 11a
+        json['cond']['values'].sort()
         leftJson = False
         rightJson = False
         if 'type' in json['lrel']:
